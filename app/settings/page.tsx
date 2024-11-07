@@ -3,7 +3,8 @@ import React from 'react'
 const Settings = () => {
   return (
     <div> 
-      <h1 className='text-3xl font-bold'>Settings</h1>
+      <div><h1 className='text-4xl font-extrabold'>Settings</h1></div>
+      <hr className='my-5'/>
     </div>
   )
 }
