@@ -1,14 +1,15 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Paginator } from 'primereact/paginator';
-import 'primereact/resources/themes/lara-light-cyan/theme.css';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
-import { Skeleton } from 'primereact/skeleton';
-import Title from './Title';
+import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Paginator } from "primereact/paginator";
+import "primereact/resources/themes/lara-light-cyan/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+import { Skeleton } from "primereact/skeleton";
+import Title from "./Title";
+import { Tag } from "primereact/tag";
 
 interface User {
   id: number;
@@ -27,34 +28,68 @@ const Users = () => {
   const [error, setError] = useState<string | null>(null);
   const [totalRecords, setTotalRecords] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined); // Change to string | undefined
+  const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
+  const [selectedGender, setSelectedGender] = useState<string | undefined>(undefined);
+  const [nameFilter, setNameFilter] = useState("");
 
-  const statuses = ['Alive', 'Dead', 'unknown'];
+  const statuses = ["All", "Alive", "Dead", "unknown"];
+  const genders = ["All", "Male", "Female", "unknown"];
 
-  // Function to fetch users with status filter
-  const fetchUsers = async (page: number, status: string | undefined) => { // Change to string | undefined
+  // Calculate active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedStatus && selectedStatus !== "All") count++;
+    if (selectedGender && selectedGender !== "All") count++;
+    if (nameFilter && nameFilter !== "") count++;
+    return count;
+  }, [selectedStatus, selectedGender, nameFilter]);
+
+  // Function to fetch users with status, name, and gender filter
+  const fetchUsers = async (page: number, status?: string, name?: string, gender?: string) => {
     setLoading(true);
     try {
       let url = `https://rickandmortyapi.com/api/character/?page=${page}`;
-      if (status) {
-        // Append the status parameter to the URL
-        url += `&status=${status.toLowerCase()}`;
+
+      // Create an array of filters
+      const filters: { [key: string]: string | undefined } = {
+        status: status && status !== "All" ? status.toLowerCase() : undefined,
+        name: name || undefined,
+        gender: gender && gender !== "All" ? gender.toLowerCase() : undefined,
+      };
+
+      // Add filters to URL using for...of loop
+      for (const [key, value] of Object.entries(filters)) {
+        if (value) {
+          url += `&${key}=${value}`;
+        }
       }
+
       const response = await axios.get(url);
       setUsers(response.data.results);
       setFilteredUsers(response.data.results);
       setTotalRecords(response.data.info.count);
     } catch (err) {
-      setError('Error fetching data');
+      setError("Error fetching data");
     } finally {
       setLoading(false);
     }
   };
 
+
+  // Severity configuration for status
+  const severityConfig: { [key: string]: "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined } = {
+    alive: "success", // Green for alive
+    dead: "danger", // Red for dead
+    unknown: "warning", // Yellow for unknown
+  };
+
+  const getSeverity = (status: string): "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined => {
+    return severityConfig[status.toLowerCase()] || "secondary"; // Default to 'secondary' if status is unrecognized
+  };
+
   useEffect(() => {
-    // Fetch users on page load or when status changes
-    fetchUsers(currentPage, selectedStatus);
-  }, [currentPage, selectedStatus]); 
+    fetchUsers(currentPage, selectedStatus, nameFilter, selectedGender);
+  }, [currentPage, selectedStatus, nameFilter, selectedGender]);
 
   const onPageChange = (event: any) => {
     setCurrentPage(event.page + 1); // Set current page for pagination
@@ -67,55 +102,58 @@ const Users = () => {
     setFilteredUsers(filtered);
   };
 
-  const handleStatusFilter = (status: string | undefined) => { // Change to string | undefined
-    setSelectedStatus(status); // Update the selected status
+  const handleApplyFilters = (name: string, status: string | undefined, gender: string | undefined) => {
+    setNameFilter(name);
+    setSelectedStatus(status);
+    setSelectedGender(gender);
+    fetchUsers(currentPage, status, name, gender);
+  };
+
+  const handleResetFilters = () => {
+    setNameFilter("");
+    setSelectedStatus(undefined);
+    setSelectedGender(undefined);
+    fetchUsers(currentPage, undefined, "", ""); // Reset filters in the API request
   };
 
   const statusBodyTemplate = (rowData: User) => {
-    let bgColor;
-    switch (rowData.status) {
-      case 'Alive':
-        bgColor = 'bg-green-500';
-        break;
-      case 'Dead':
-        bgColor = 'bg-red-500';
-        break;
-      case 'unknown':
-        bgColor = 'bg-gray-500';
-        break;
-      default:
-        bgColor = 'bg-gray-300';
-        break;
-    }
-    return <div className={`${bgColor} text-white p-2 rounded`}>{rowData.status}</div>;
+    return <Tag value={rowData.status} severity={getSeverity(rowData.status)} className="w-24 rounded-2xl" />;
   };
 
   const renderSkeleton = () => {
     return (
       <DataTable value={Array(20).fill({})} className="p-datatable-striped">
-        <Column field="id" header="ID" style={{ width: '5%' }} body={<Skeleton />} />
-        <Column field="name" header="Name" style={{ width: '20%' }} body={<Skeleton />} />
-        <Column field="status" header="Status" style={{ width: '6%' }} body={<Skeleton />} />
-        <Column field="gender" header="Gender" style={{ width: '6%' }} body={<Skeleton />} />
-        <Column field="location" header="Location" style={{ width: '20%' }} body={<Skeleton />} />
+        <Column field="id" header="ID" style={{ width: "5%" }} body={<Skeleton />} />
+        <Column field="name" header="Name" style={{ width: "20%" }} body={<Skeleton />} />
+        <Column field="status" header="Status" style={{ width: "6%" }} body={<Skeleton />} />
+        <Column field="gender" header="Gender" style={{ width: "6%" }} body={<Skeleton />} />
+        <Column field="location" header="Location" style={{ width: "20%" }} body={<Skeleton />} />
       </DataTable>
     );
   };
 
   const rowClassName = (rowData: User) => {
-    return 'border-b border-gray-200';
+    return "border-b border-gray-200";
   };
 
   return (
     <div className="card">
       <Title
         onFilter={handleFilter}
+        onApplyFilters={handleApplyFilters}
         statuses={statuses}
-        selectedStatus={selectedStatus} // Now passing `string | undefined`
-        onStatusFilter={handleStatusFilter} // `onStatusFilter` now accepts `string | undefined`
-            />
+        genders={genders}
+        selectedStatus={selectedStatus}
+        selectedGender={selectedGender}
+        onStatusFilter={(status) => setSelectedStatus(status)}
+        onGenderFilter={(gender) => setSelectedGender(gender)}
+        onResetFilters={handleResetFilters}
+        activeFilterCount={activeFilterCount} // Pass active filter count directly
+      />
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      {loading ? renderSkeleton() : (
+      {loading ? (
+        renderSkeleton()
+      ) : (
         <DataTable
           value={filteredUsers}
           paginator={false}
@@ -129,12 +167,7 @@ const Users = () => {
           <Column field="location.name" header="Location" sortable />
         </DataTable>
       )}
-      <Paginator
-        first={(currentPage - 1) * 20}
-        rows={20}
-        totalRecords={totalRecords}
-        onPageChange={onPageChange}
-      />
+      <Paginator first={(currentPage - 1) * 20} rows={20} totalRecords={totalRecords} onPageChange={onPageChange} />
     </div>
   );
 };
