@@ -1,0 +1,20 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Post {
+  id       Int      @id @default(autoincrement())
+  name     String // The name of the employee or person
+  role     String // The role of the employee
+  company  String // The company name
+  joinDate DateTime // Date of joining
+  salary   Float // Salary (in numerical format)
+
+  createdAt DateTime @default(now()) // Record creation timestamp
+  updatedAt DateTime @updatedAt // Record last update timestamp
+}
