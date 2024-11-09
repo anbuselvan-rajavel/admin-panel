@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import { Home, User, Settings, Gift, PanelRightClose, PanelLeftClose } from 'lucide-react';
+import { Home, User, Settings, BriefcaseMedical, PanelRightClose, PanelLeftClose } from 'lucide-react';
 
 const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -37,12 +37,12 @@ const Sidebar = () => {
 
                 {/* Orders Link */}
                 <Link 
-                    href="/orders" 
-                    className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'orders' ? 'bg-zinc-300 text-green-500' : 'hover:bg-zinc-300'}`}
-                    onClick={() => handleMenuClick('orders')}
+                    href="/employees" 
+                    className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'employees' ? 'bg-zinc-300 text-green-500' : 'hover:bg-zinc-300'}`}
+                    onClick={() => handleMenuClick('employees')}
                 >
-                    <Gift size={24} color={activeMenu === 'orders' ? 'green' : 'currentColor'} />
-                    <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Orders</span>
+                    <BriefcaseMedical size={24} color={activeMenu === 'employees' ? 'green' : 'currentColor'} /> 
+                    <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Employees</span>
                 </Link>
 
                 {/* Users Link */}
