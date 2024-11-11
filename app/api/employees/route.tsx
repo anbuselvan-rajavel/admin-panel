@@ -3,14 +3,26 @@ import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-// GET method - Retrieve all employees with formatted joinDate
-export async function GET() {
+// GET method - Retrieve paginated employees
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const page = Number(url.searchParams.get('page')) || 1; // Default to page 1
+  const limit = Number(url.searchParams.get('limit')) || 10; // Default to 10 items per page
+
+  const skip = (page - 1) * limit; // calculate the number of records to skip
+
   try {
+    //get the employees with pagination
     const employees = await prisma.employee.findMany({
+      skip, // skip the first (page - 1) * limit records
+      take: limit, // limit the number of records to 'limit'
       orderBy: {
         createdAt: 'asc'  // Ensure the records are sorted by `createdAt` in ascending order
       },
     });
+
+    // get the total number of employees for pagination purposes
+    const totalEmployees = await prisma.employee.count();
 
     // Format joinDate to YYYY-MM-DD for each employee
     const formattedEmployees = employees.map((employee) => ({
@@ -18,7 +30,19 @@ export async function GET() {
       joinDate: employee.joinDate.toISOString().split('T')[0], // Remove the time part
     }));
 
-    return NextResponse.json(formattedEmployees, { status: 200 });
+    if (page <= 0 || limit <= 0) {
+      return NextResponse.json({ error: 'Page and limit must be positive integers' }, { status: 400 });
+    }
+
+    return NextResponse.json({
+      meta: {
+        page,
+        limit,
+        totalEmployees,
+        totalPages: Math.ceil(totalEmployees / limit), // calculate total pages
+      },
+      data: formattedEmployees,
+    }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to fetch employees' }, { status: 500 });
@@ -31,7 +55,7 @@ export async function POST(request: Request) {
     const { name, email, role, company, joinDate, salary } = await request.json();
 
     // Convert joinDate to Date object if it's a string (ensures valid date format)
-    const newJoinDate = new Date(joinDate); 
+    const newJoinDate = new Date(joinDate);
 
     const newEmployee = await prisma.employee.create({
       data: {

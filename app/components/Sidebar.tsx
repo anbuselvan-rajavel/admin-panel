@@ -1,19 +1,28 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Home, User, Settings, BriefcaseMedical, PanelRightClose, PanelLeftClose } from 'lucide-react';
+import { usePathname } from 'next/navigation';  // Import usePathname
 
 const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [activeMenu, setActiveMenu] = useState<string>('dashboard');  // Track active menu
+    const pathname = usePathname();  // Get the current pathname
 
+    // Function to toggle the sidebar collapse state
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
     };
 
-    const handleMenuClick = (menu: string) => {
-        setActiveMenu(menu); // Update active menu when a link is clicked
+    // Determine which menu should be active based on the pathname
+    const getActiveMenu = () => {
+        if (pathname === "/") return "dashboard";
+        if (pathname.startsWith("/employees")) return "employees";
+        if (pathname.startsWith("/users")) return "users";
+        if (pathname.startsWith("/settings")) return "settings";
+        return "dashboard";  // Default if no match
     };
+
+    const activeMenu = getActiveMenu();  // Set active menu based on the current route
 
     return (
         <div className={`bg-zinc-100 text-black transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'} min-h-screen`}>
@@ -29,19 +38,17 @@ const Sidebar = () => {
                 <Link 
                     href="/" 
                     className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'dashboard' ? 'bg-zinc-300 text-violet-500' : 'hover:bg-zinc-300'}`}
-                    onClick={() => handleMenuClick('dashboard')}
                 >
                     <Home size={24} color={activeMenu === 'dashboard' ? 'violet' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Dashboard</span>
                 </Link>
 
-                {/* Orders Link */}
+                {/* Employees Link */}
                 <Link 
                     href="/employees" 
                     className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'employees' ? 'bg-zinc-300 text-green-500' : 'hover:bg-zinc-300'}`}
-                    onClick={() => handleMenuClick('employees')}
                 >
-                    <BriefcaseMedical size={24} color={activeMenu === 'employees' ? 'green' : 'currentColor'} /> 
+                    <BriefcaseMedical size={24} color={activeMenu === 'employees' ? 'green' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Employees</span>
                 </Link>
 
@@ -49,7 +56,6 @@ const Sidebar = () => {
                 <Link 
                     href="/users" 
                     className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'users' ? 'bg-zinc-300 text-red-500' : 'hover:bg-zinc-300'}`}
-                    onClick={() => handleMenuClick('users')}
                 >
                     <User size={24} color={activeMenu === 'users' ? 'red' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Users</span>
@@ -59,7 +65,6 @@ const Sidebar = () => {
                 <Link 
                     href="/settings" 
                     className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'settings' ? 'bg-zinc-300 text-blue-500' : 'hover:bg-zinc-300'}`}
-                    onClick={() => handleMenuClick('settings')}
                 >
                     <Settings size={24} color={activeMenu === 'settings' ? 'blue' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Settings</span>
