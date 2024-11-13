@@ -6,11 +6,12 @@ import { Column } from 'primereact/column';
 import axios from 'axios';
 import { Skeleton } from 'primereact/skeleton';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
-import { classNames } from 'primereact/utils';
-import { Ripple } from 'primereact/ripple';
 import { Dropdown } from 'primereact/dropdown';
+import { GrEdit } from 'react-icons/gr';
+import { RiDeleteBin6Line } from 'react-icons/ri';
 
 interface Employee {
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -75,7 +76,7 @@ const Employees = () => {
       ];
       return (
         <React.Fragment>
-            <Dropdown value={options.value} options={dropdownOptions} onChange={options.onChange} className='border' />
+          <Dropdown value={options.value} options={dropdownOptions} onChange={options.onChange} className='border' />
         </React.Fragment>
       )
     },
@@ -95,12 +96,31 @@ const Employees = () => {
         <Column field='email' header="Email" sortable style={{ width: '25%' }} body={<Skeleton />} />
         <Column field='role' header="Role" sortable style={{ width: '15%' }} body={<Skeleton />} />
         <Column field='company' header="Company" sortable style={{ width: '15%' }} body={<Skeleton />} />
-        <Column field='joinDate' header="Join Date" sortable style={{ width: '10%' }} body={<Skeleton />} />
-        <Column field='salary' header="Salary" sortable style={{ width: '25%' }} body={<Skeleton />} />
+        <Column field='joinDate' header="Join Date" sortable style={{ width: '10%' }} body={<Skeleton />} />        
+        <Column field='salary' header="Salary" sortable style={{ width: '10%' }} body={<Skeleton />} />
+        <Column field='action' header="Actions" sortable style={{ width: '6%' }} body={<Skeleton />} />
       </DataTable>
     )
   }
 
+  // Handle Edit action
+  const handleEdit = (employee: Employee) => {
+    console.log('Edit clicked for', employee);
+    // Implement your edit logic here, maybe open a modal with the employee details
+  }
+
+  // Handle Delete action
+  const handleDelete = async (employeeId: string) => {
+    if (window.confirm('Are you sure you want to delete this employee?')) {
+      try {
+        await axios.delete(`http://localhost:3000/api/employees/${employeeId}`);
+        setEmployees((prevEmployees) => prevEmployees.filter((emp) => emp.id !== employeeId));
+        setTotalRecords((prevTotal) => prevTotal - 1);
+      } catch (error) {
+        setError('Error deleting employee');
+      }
+    }
+  }
 
   return (
     <div>
@@ -121,7 +141,29 @@ const Employees = () => {
             <Column field='role' header="Role" sortable style={{ width: '15%' }} />
             <Column field='company' header="Company" sortable style={{ width: '15%' }} />
             <Column field='joinDate' header="Join Date" sortable style={{ width: '10%' }} />
-            <Column field='salary' header="Salary" sortable style={{ width: '25%' }} />
+            <Column field='salary' header="Salary" sortable style={{ width: '10%' }} />
+            {/* Actions Column with Icons */}
+            <Column
+              header="Actions"
+              body={(rowData: Employee) => (
+                <div className="flex justify-between">
+                  <button
+                    className="p-button p-button-rounded p-button-text p-button-info"
+                    onClick={() => handleEdit(rowData)}
+                  >
+                    <GrEdit className="text-blue-700 w-5" />
+                  </button>
+                  <button
+                    className="p-button p-button-rounded p-button-text p-button-danger"
+                    onClick={() => handleDelete(rowData.id)}
+                  >
+                    <RiDeleteBin6Line className="text-red-500" />
+                  </button>
+                </div>
+              )}
+              style={{ width: '6%' }}
+              headerStyle={{ textAlign: 'center' }} // Center the header
+            />
           </DataTable>
 
           <Paginator
