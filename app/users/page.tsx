@@ -134,7 +134,7 @@ const Users = () => {
     );
   };
 
-  const rowClassName = (rowData: User) => {
+  const rowClassName = () => {
     return "border-b border-gray-200";
   };
 
