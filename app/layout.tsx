@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import "./globals.css";
 import Layout from "./components/Layout";
 import "primereact/resources/themes/lara-light-cyan/theme.css";

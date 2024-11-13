@@ -1,6 +1,6 @@
-"use client"
-import React, { useEffect, useState } from 'react'
-import Title from './title'
+"use client";
+import React, { useEffect, useState, useCallback } from 'react';
+import Title from './title';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import axios from 'axios';
@@ -27,11 +27,10 @@ const Employees = () => {
 
   // Pagination State
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10); // You can adjust this or make it dynamic if needed
   const [totalRecords, setTotalRecords] = useState(0);  // Total number of records
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:3000/api/employees', {
@@ -42,28 +41,29 @@ const Employees = () => {
       });
 
       setEmployees(response.data.data);
-      setTotalRecords(response.data.meta.totalEmployees);
-      setTotalPages(response.data.meta.totalPages)
+      setTotalRecords(response.data.meta.totalEmployees);      
     } catch (err) {
       setError("Error fetching data");
+      console.log(err);
+      
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit]);
 
   useEffect(() => {
     fetchEmployees();
-  }, [page, limit]); // Refetch data whenever page or limit changes
+  }, [fetchEmployees]); // Refetch data whenever page or limit changes
 
   const rowClassName = (rowData: Employee) => {
-    return "border-b border-gray-200"
-  }
+    return "border-b border-gray-200";
+  };
 
   // Pagination Change handler
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setPage(event.page + 1);  // PrimeReact pagination is zero-indexed, so add 1
     setLimit(event.rows); // Update rows per page
-  }
+  };
 
   const paginatorTemplate = {
     layout: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport',
@@ -78,7 +78,7 @@ const Employees = () => {
         <React.Fragment>
           <Dropdown value={options.value} options={dropdownOptions} onChange={options.onChange} className='border' />
         </React.Fragment>
-      )
+      );
     },
     CurrentPageReport: (options: any) => {
       return (
@@ -87,7 +87,7 @@ const Employees = () => {
         </span>
       );
     }
-  }
+  };
 
   const renderSkeleton = () => {
     return (
@@ -100,14 +100,14 @@ const Employees = () => {
         <Column field='salary' header="Salary" sortable style={{ width: '10%' }} body={<Skeleton />} />
         <Column field='action' header="Actions" sortable style={{ width: '6%' }} body={<Skeleton />} />
       </DataTable>
-    )
-  }
+    );
+  };
 
   // Handle Edit action
   const handleEdit = (employee: Employee) => {
     console.log('Edit clicked for', employee);
     // Implement your edit logic here, maybe open a modal with the employee details
-  }
+  };
 
   // Handle Delete action
   const handleDelete = async (employeeId: string) => {
@@ -118,9 +118,11 @@ const Employees = () => {
         setTotalRecords((prevTotal) => prevTotal - 1);
       } catch (error) {
         setError('Error deleting employee');
+        console.log(error);
+        
       }
     }
-  }
+  };
 
   return (
     <div>
@@ -173,12 +175,10 @@ const Employees = () => {
             onPageChange={onPageChange} // Handle page change
             template={paginatorTemplate}
           />
-
         </div>
       )}
-
     </div>
-  )
-}
+  );
+};
 
-export default Employees
+export default Employees;

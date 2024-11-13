@@ -18,6 +18,10 @@ interface User {
   };
 }
 
+interface PageChangeEvent {
+   page: number; 
+  }
+
 const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -67,6 +71,7 @@ const Users = () => {
       setTotalRecords(response.data.info.count);
     } catch (err) {
       setError("Error fetching data");
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -88,7 +93,7 @@ const Users = () => {
     fetchUsers(currentPage, selectedStatus, nameFilter, selectedGender);
   }, [currentPage, selectedStatus, nameFilter, selectedGender]);
 
-  const onPageChange = (event: any) => {
+  const onPageChange = (event: PageChangeEvent) => {
     setCurrentPage(event.page + 1); // Set current page for pagination
   };
 
