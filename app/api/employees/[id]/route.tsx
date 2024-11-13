@@ -1,30 +1,31 @@
 import { PrismaClient } from '@prisma/client';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-interface Context {
-  params: { id: string };
-}
-
 // GET method - Retrieve a single employee by ID
-export async function GET(
-  req: NextRequest,
-  context: Context
-): Promise<NextResponse> {
-  const { id } = context.params;
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+  }
+
   try {
     const employee = await prisma.employee.findUnique({
       where: { id: parseInt(id) },
     });
+
     if (!employee) {
       return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
     }
+
     const formattedEmployee = {
       ...employee,
       joinDate: employee.joinDate.toISOString().split('T')[0],
     };
+
     return NextResponse.json(formattedEmployee, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -33,11 +34,16 @@ export async function GET(
 }
 
 // PUT method - Update an employee's details
-export async function PUT(req: NextRequest, { params }: Context) {
-  const { id } = params;
+export async function PUT(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+  }
 
   try {
-    const data = await req.json();
+    const data = await request.json();
 
     if (!data.name) {
       return NextResponse.json({ error: 'Name field is required' }, { status: 400 });
@@ -63,8 +69,13 @@ export async function PUT(req: NextRequest, { params }: Context) {
 }
 
 // DELETE method - Delete an employee by ID
-export async function DELETE(req: NextRequest, { params }: Context) {
-  const { id } = params;
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+  }
 
   try {
     const deletedEmployee = await prisma.employee.delete({
