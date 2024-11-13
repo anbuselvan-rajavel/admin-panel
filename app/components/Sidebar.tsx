@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Home, User, Settings, BriefcaseMedical, PanelRightClose, PanelLeftClose } from 'lucide-react';
 import { usePathname } from 'next/navigation';  // Import usePathname

@@ -1,3 +1,4 @@
+// /app/api/employees/route.ts
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
   const skip = (page - 1) * limit; // calculate the number of records to skip
 
   try {
-    //get the employees with pagination
+    // Get the employees with pagination
     const employees = await prisma.employee.findMany({
       skip, // skip the first (page - 1) * limit records
       take: limit, // limit the number of records to 'limit'
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
       },
     });
 
-    // get the total number of employees for pagination purposes
+    // Get the total number of employees for pagination purposes
     const totalEmployees = await prisma.employee.count();
 
     // Format joinDate to YYYY-MM-DD for each employee
