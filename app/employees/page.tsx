@@ -1,12 +1,12 @@
-"use client";
+"use client"
 import React, { useEffect, useState, useCallback } from 'react';
 import Title from './title';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import axios from 'axios';
 import { Skeleton } from 'primereact/skeleton';
-import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
-import { Dropdown } from 'primereact/dropdown';
+import { Paginator, PaginatorChangeEvent, PaginatorPageChangeEvent, PaginatorRowsPerPageDropdownOptions } from 'primereact/paginator';
+import { Dropdown} from 'primereact/dropdown';  
 import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 
@@ -18,6 +18,12 @@ interface Employee {
   company: string;
   joinDate: string;
   salary: number;
+}
+
+interface CurrentPageReportOptions {
+  first: number;
+  last: number;
+  totalRecords: number;
 }
 
 const Employees = () => {
@@ -45,7 +51,6 @@ const Employees = () => {
     } catch (err) {
       setError("Error fetching data");
       console.log(err);
-      
     } finally {
       setLoading(false);
     }
@@ -55,7 +60,7 @@ const Employees = () => {
     fetchEmployees();
   }, [fetchEmployees]); // Refetch data whenever page or limit changes
 
-  const rowClassName = (rowData: Employee) => {
+  const rowClassName = () => {
     return "border-b border-gray-200";
   };
 
@@ -67,20 +72,24 @@ const Employees = () => {
 
   const paginatorTemplate = {
     layout: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport',
-    RowsPerPageDropdown: (options: any) => {
+    RowsPerPageDropdown: (options: PaginatorRowsPerPageDropdownOptions) => {
       const dropdownOptions = [
         { label: 5, value: 5 },
         { label: 10, value: 10 },
         { label: 15, value: 15 },
         { label: 20, value: 20 },
       ];
+ const handleChange = (event: PaginatorChangeEvent) => {
+  options.onChange(event); // Pass event to the PaginatorChangeEvent handler
+ }
+
       return (
         <React.Fragment>
-          <Dropdown value={options.value} options={dropdownOptions} onChange={options.onChange} className='border' />
+          <Dropdown value={options.value} options={dropdownOptions} onChange={handleChange} className='border' />
         </React.Fragment>
       );
     },
-    CurrentPageReport: (options: any) => {
+    CurrentPageReport: (options: CurrentPageReportOptions) => {
       return (
         <span style={{ color: 'var(--text-color)', userSelect: 'none', width: '120px', textAlign: 'center' }}>
           {options.first} - {options.last} of {options.totalRecords}
@@ -119,7 +128,6 @@ const Employees = () => {
       } catch (error) {
         setError('Error deleting employee');
         console.log(error);
-        
       }
     }
   };
