@@ -6,9 +6,10 @@ import { Column } from 'primereact/column';
 import axios from 'axios';
 import { Skeleton } from 'primereact/skeleton';
 import { Paginator, PaginatorChangeEvent, PaginatorPageChangeEvent, PaginatorRowsPerPageDropdownOptions } from 'primereact/paginator';
-import { Dropdown} from 'primereact/dropdown';  
+import { Dropdown } from 'primereact/dropdown';
 import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+
 
 interface Employee {
   id: string;
@@ -28,6 +29,7 @@ interface CurrentPageReportOptions {
 
 const Employees = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>(employees);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,10 +49,10 @@ const Employees = () => {
       });
 
       setEmployees(response.data.data);
-      setTotalRecords(response.data.meta.totalEmployees);      
+      setTotalRecords(response.data.meta.totalEmployees);
     } catch (err) {
       setError("Error fetching data");
-      console.log(err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -59,6 +61,11 @@ const Employees = () => {
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees]); // Refetch data whenever page or limit changes
+
+  useEffect(() => {
+    // Whenever employees change, reset filtered employees
+    setFilteredEmployees(employees);
+  }, [employees]);
 
   const rowClassName = () => {
     return "border-b border-gray-200";
@@ -79,9 +86,9 @@ const Employees = () => {
         { label: 15, value: 15 },
         { label: 20, value: 20 },
       ];
- const handleChange = (event: PaginatorChangeEvent) => {
-  options.onChange(event); // Pass event to the PaginatorChangeEvent handler
- }
+      const handleChange = (event: PaginatorChangeEvent) => {
+        options.onChange(event); // Pass event to the PaginatorChangeEvent handler
+      }
 
       return (
         <React.Fragment>
@@ -105,7 +112,7 @@ const Employees = () => {
         <Column field='email' header="Email" sortable style={{ width: '25%' }} body={<Skeleton />} />
         <Column field='role' header="Role" sortable style={{ width: '15%' }} body={<Skeleton />} />
         <Column field='company' header="Company" sortable style={{ width: '15%' }} body={<Skeleton />} />
-        <Column field='joinDate' header="Join Date" sortable style={{ width: '10%' }} body={<Skeleton />} />        
+        <Column field='joinDate' header="Join Date" sortable style={{ width: '10%' }} body={<Skeleton />} />
         <Column field='salary' header="Salary" sortable style={{ width: '10%' }} body={<Skeleton />} />
         <Column field='action' header="Actions" sortable style={{ width: '6%' }} body={<Skeleton />} />
       </DataTable>
@@ -132,16 +139,34 @@ const Employees = () => {
     }
   };
 
+  const formatSalary = (value: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0 // Removes decimal places
+    }).format(value);
+  }
+
+  const handleFilter = (filterText: string) => {
+    const filtered = employees.filter((employee) => 
+      employee.name.toLowerCase().includes(filterText.toLowerCase())
+    );
+    setFilteredEmployees(filtered);
+  };
+  
+
   return (
     <div>
-      <Title />
+      <Title 
+      onFilter={handleFilter}
+      />
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {loading ? (
         renderSkeleton()
       ) : (
         <div>
           <DataTable
-            value={employees}
+            value={filteredEmployees}
             tableStyle={{ minWidth: '50rem' }}
             rowClassName={rowClassName}
             className='p-datatable-gridlines p-datatable-sm p-4 rounded-lg bg-white'
@@ -151,28 +176,27 @@ const Employees = () => {
             <Column field='role' header="Role" sortable style={{ width: '15%' }} />
             <Column field='company' header="Company" sortable style={{ width: '15%' }} />
             <Column field='joinDate' header="Join Date" sortable style={{ width: '10%' }} />
-            <Column field='salary' header="Salary" sortable style={{ width: '10%' }} />
+            <Column field='salary' header="Salary" sortable style={{ width: '10%' }} body={(rowData) => formatSalary(rowData.salary)} />
             {/* Actions Column with Icons */}
             <Column
               header="Actions"
               body={(rowData: Employee) => (
-                <div className="flex justify-between">
+                <div className="flex justify-center gap-2">
                   <button
-                    className="p-button p-button-rounded p-button-text p-button-info"
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                     onClick={() => handleEdit(rowData)}
                   >
-                    <GrEdit className="text-blue-700 w-5" />
+                    <GrEdit className="text-blue-700 w-4 h-4" />
                   </button>
                   <button
-                    className="p-button p-button-rounded p-button-text p-button-danger"
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                     onClick={() => handleDelete(rowData.id)}
                   >
-                    <RiDeleteBin6Line className="text-red-500" />
+                    <RiDeleteBin6Line className="text-red-500 w-4 h-4" />
                   </button>
                 </div>
               )}
               style={{ width: '6%' }}
-              headerStyle={{ textAlign: 'center' }} // Center the header
             />
           </DataTable>
 

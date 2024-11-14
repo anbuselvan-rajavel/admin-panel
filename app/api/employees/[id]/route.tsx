@@ -1,15 +1,24 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-// GET method - Retrieve a single employee by ID
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
+function isPrismaError(error: unknown): error is Prisma.PrismaClientKnownRequestError {
+  return error instanceof Prisma.PrismaClientKnownRequestError;
+}
 
-  if (!id) {
-    return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+// GET method - Retrieve a single employee by ID
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+
+  if (!id || isNaN(parseInt(id))) {
+    return NextResponse.json({ 
+      success: false,
+      error: 'Valid employee ID is required' 
+    }, { status: 400 });
   }
 
   try {
@@ -18,7 +27,10 @@ export async function GET(request: NextRequest) {
     });
 
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+      return NextResponse.json({ 
+        success: false,
+        error: 'Employee not found' 
+      }, { status: 404 });
     }
 
     const formattedEmployee = {
@@ -26,27 +38,45 @@ export async function GET(request: NextRequest) {
       joinDate: employee.joinDate.toISOString().split('T')[0],
     };
 
-    return NextResponse.json(formattedEmployee, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to fetch employee' }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      data: formattedEmployee
+    }, { status: 200 });
+  } catch (error: unknown) {
+    console.error('Error fetching employee:', error);
+    return NextResponse.json({ 
+      success: false,
+      error: 'Failed to fetch employee' 
+    }, { status: 500 });
   }
 }
 
-// PUT method - Update an employee's details
-export async function PUT(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
+// PUT method - Update an employee
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
 
-  if (!id) {
-    return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+  if (!id || isNaN(parseInt(id))) {
+    return NextResponse.json({ 
+      success: false,
+      error: 'Valid employee ID is required' 
+    }, { status: 400 });
   }
 
   try {
     const data = await request.json();
 
-    if (!data.name) {
-      return NextResponse.json({ error: 'Name field is required' }, { status: 400 });
+    // Validate required fields
+    const requiredFields = ['name', 'email', 'role'];
+    const missingFields = requiredFields.filter(field => !data[field]);
+    
+    if (missingFields.length > 0) {
+      return NextResponse.json({
+        success: false,
+        error: `Missing required fields: ${missingFields.join(', ')}`
+      }, { status: 400 });
     }
 
     const updatedEmployee = await prisma.employee.update({
@@ -57,24 +87,51 @@ export async function PUT(request: NextRequest) {
         role: data.role,
         company: data.company,
         joinDate: data.joinDate ? new Date(data.joinDate) : undefined,
-        salary: data.salary,
+        salary: data.salary ? parseFloat(data.salary) : undefined,
       },
     });
 
-    return NextResponse.json(updatedEmployee, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to update employee' }, { status: 500 });
+    const formattedEmployee = {
+      ...updatedEmployee,
+      joinDate: updatedEmployee.joinDate.toISOString().split('T')[0],
+    };
+
+    return NextResponse.json({
+      success: true,
+      message: 'Employee updated successfully',
+      data: formattedEmployee
+    }, { status: 200 });
+  } catch (error: unknown) {
+    console.error('Error updating employee:', error);
+    
+    if (isPrismaError(error)) {
+      if (error.code === 'P2025') {
+        return NextResponse.json({ 
+          success: false,
+          error: 'Employee not found' 
+        }, { status: 404 });
+      }
+    }
+
+    return NextResponse.json({ 
+      success: false,
+      error: 'Failed to update employee' 
+    }, { status: 500 });
   }
 }
 
-// DELETE method - Delete an employee by ID
-export async function DELETE(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
+// DELETE method - Delete an employee
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
 
-  if (!id) {
-    return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+  if (!id || isNaN(parseInt(id))) {
+    return NextResponse.json({ 
+      success: false,
+      error: 'Valid employee ID is required' 
+    }, { status: 400 });
   }
 
   try {
@@ -82,9 +139,31 @@ export async function DELETE(request: NextRequest) {
       where: { id: parseInt(id) },
     });
 
-    return NextResponse.json({ message: 'Employee deleted', employee: deletedEmployee }, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to delete employee' }, { status: 500 });
+    const formattedEmployee = {
+      ...deletedEmployee,
+      joinDate: deletedEmployee.joinDate.toISOString().split('T')[0],
+    };
+
+    return NextResponse.json({
+      success: true,
+      message: 'Employee deleted successfully',
+      data: formattedEmployee
+    }, { status: 200 });
+  } catch (error: unknown) {
+    console.error('Error deleting employee:', error);
+
+    if (isPrismaError(error)) {
+      if (error.code === 'P2025') {
+        return NextResponse.json({ 
+          success: false,
+          error: 'Employee not found' 
+        }, { status: 404 });
+      }
+    }
+
+    return NextResponse.json({ 
+      success: false,
+      error: 'Failed to delete employee' 
+    }, { status: 500 });
   }
 }

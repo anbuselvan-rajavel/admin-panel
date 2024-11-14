@@ -5,13 +5,13 @@ import FilterSidebar from '../components/FilterSidebar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'primeicons/primeicons.css';
-import './Title.css';
+import { FilterUserForm } from '../components/FilterUserForm';
 
 interface TitleProps {
   onFilter: (filterText: string) => void;
   onApplyFilters: (nameFilter: string, statusFilter: string | undefined, genderFilter: string | undefined) => void;
-  statuses: string[];
-  genders: string[];
+  statuses: string[]; // expecting the statuses prop
+  genders: string[];  // expecting the genders prop
   selectedStatus: string | undefined;
   selectedGender: string | undefined;
   onStatusFilter: (status: string | undefined) => void;
@@ -59,7 +59,7 @@ const Title: React.FC<TitleProps> = ({
   const handleFormSubmit = (data: FilterFormValues) => {
     const statusFilter = data.status === 'All' ? undefined : data.status;
     const genderFilter = data.gender === 'All' ? undefined : data.gender;
-    
+
     onStatusFilter(statusFilter);
     onGenderFilter(genderFilter);
     onApplyFilters(data.name || '', statusFilter, genderFilter);
@@ -85,9 +85,9 @@ const Title: React.FC<TitleProps> = ({
         </div>
         <div className="col-span-2 flex justify-evenly">
           <TitleBarActions
-          handleFilterChange={handleFilterChange}
-          setVisibleRight={setVisibleRight}
-          activeFilterCount={activeFilterCount}
+            handleFilterChange={handleFilterChange}
+            setVisibleRight={setVisibleRight}
+            activeFilterCount={activeFilterCount}
           />
         </div>
       </div>
@@ -99,8 +99,9 @@ const Title: React.FC<TitleProps> = ({
         onReset={handleResetFilters}
         control={control}
         errors={errors}
-        statuses={statuses}
-        genders={genders}
+        CustomFilterForm={FilterUserForm}  // Pass the custom form here
+        statuses={statuses}  // Pass statuses directly as props
+        genders={genders}    // Pass genders directly as props
       />
     </div>
   );

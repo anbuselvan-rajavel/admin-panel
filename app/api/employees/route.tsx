@@ -9,6 +9,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const page = Number(url.searchParams.get('page')) || 1; // Default to page 1
   const limit = Number(url.searchParams.get('limit')) || 10; // Default to 10 items per page
+  const baseUrl = `${url.protocol}//${url.host}${url.pathname}`;
 
   const skip = (page - 1) * limit; // calculate the number of records to skip
 
@@ -24,6 +25,7 @@ export async function GET(req: Request) {
 
     // Get the total number of employees for pagination purposes
     const totalEmployees = await prisma.employee.count();
+    const totalPages = Math.ceil(totalEmployees / limit);
 
     // Format joinDate to YYYY-MM-DD for each employee
     const formattedEmployees = employees.map((employee) => ({
@@ -40,7 +42,11 @@ export async function GET(req: Request) {
         page,
         limit,
         totalEmployees,
-        totalPages: Math.ceil(totalEmployees / limit), // calculate total pages
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        nextPage: page < totalPages ? `${baseUrl}?page=${page + 1}&limit=${limit}` : null,
+prevPage: page > 1 ? `${baseUrl}?page=${page - 1}&limit=${limit}` : null
       },
       data: formattedEmployees,
     }, { status: 200 });
