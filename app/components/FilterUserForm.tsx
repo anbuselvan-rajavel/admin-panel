@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 import { Control, FieldErrors, Controller } from 'react-hook-form';
 import { FilterFormValues } from '../schema/filterFormSchema';
 
-interface FilterFormProps {
+interface FilterUserFormProps {
     onSubmit: () => void;
     onReset: () => void;
     control: Control<FilterFormValues>;
@@ -15,7 +15,7 @@ interface FilterFormProps {
     genders: string[];
 }
 
-export const FilterForm: React.FC<FilterFormProps> = ({
+export const FilterUserForm: React.FC<FilterUserFormProps> = ({
     onSubmit,
     onReset,
     control,

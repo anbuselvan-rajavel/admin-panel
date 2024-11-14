@@ -5,16 +5,18 @@ import { Badge } from 'primereact/badge';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 
-interface TitleProps {
+interface TitleBarActionsProps {
     handleFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     setVisibleRight: (value: boolean) => void;
     activeFilterCount?: number;
+    searchPlaceholder?: string;
 }
 
-const Title: React.FC<TitleProps> = ({ 
+const TitleBarActions: React.FC<TitleBarActionsProps> = ({ 
   handleFilterChange, 
   setVisibleRight, 
-  activeFilterCount = 0 
+  activeFilterCount = 0 ,
+  searchPlaceholder = "Search..."
 }) => {
   return (
     <div className="flex items-center gap-4">
@@ -22,7 +24,7 @@ const Title: React.FC<TitleProps> = ({
         <InputIcon className="pi pi-search" />
         <InputText
           onChange={handleFilterChange}
-          placeholder="Search Users..."
+          placeholder={searchPlaceholder}
           className="pl-10 border-purple-500 border-2 rounded-md h-12 w-56 focus:outline-none focus:shadow-none"
         />
       </IconField >
@@ -51,4 +53,4 @@ const Title: React.FC<TitleProps> = ({
   );
 };
 
-export default Title;
+export default TitleBarActions;
