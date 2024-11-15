@@ -1,31 +1,31 @@
+// components/FilterSidebar.tsx
 import React from 'react';
 import { Sidebar } from 'primereact/sidebar';
-import { Control, FieldErrors } from 'react-hook-form';
-import { FilterFormValues } from '../schema/filterFormSchema';
+import { Control, FieldErrors, FieldValues } from 'react-hook-form';
 
-interface FilterSidebarProps {
+interface FilterSidebarProps<T extends FieldValues> {
   visible: boolean;
   onHide: () => void;
   onSubmit: () => void;
   onReset: () => void;
-  control: Control<FilterFormValues>;
-  errors: FieldErrors<FilterFormValues>;
+  control: Control<T>;
+  errors: FieldErrors<T>;
   CustomFilterForm: React.ComponentType<any>;
-  statuses: string[];  // expect statuses
-  genders: string[];   // expect genders
+  filterOptions: {
+    [key: string]: string[];
+  };
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({
+const FilterSidebar = <T extends FieldValues>({
   visible,
   onHide,
   onSubmit,
   onReset,
   control,
   errors,
-  CustomFilterForm,  // Expect the custom filter form
-  statuses,         // Expect statuses
-  genders,          // Expect genders
-}) => {
+  CustomFilterForm,
+  filterOptions,
+}: FilterSidebarProps<T>) => {
   return (
     <Sidebar
       visible={visible}
@@ -43,8 +43,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           onReset={onReset}
           control={control}
           errors={errors}
-          statuses={statuses}  // Pass statuses to the custom form
-          genders={genders}    // Pass genders to the custom form
+          filterOptions={filterOptions}
         />
       </div>
     </Sidebar>

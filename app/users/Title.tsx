@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { FilterFormValues, filterSchema } from '../schema/filterFormSchema';
+import React, { useState, useMemo } from 'react';
 import TitleBarActions from '../components/TitleBarActions';
 import FilterSidebar from '../components/FilterSidebar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'primeicons/primeicons.css';
-import { FilterUserForm } from '../components/FilterUserForm';
+import { UserFilterFormValues, userFilterSchema } from '../schema/filterFormSchema';
+import UserFilterForm from '../components/(forms)/UserFilterForm';
 
 interface TitleProps {
   onFilter: (filterText: string) => void;
   onApplyFilters: (nameFilter: string, statusFilter: string | undefined, genderFilter: string | undefined) => void;
-  statuses: string[]; // expecting the statuses prop
-  genders: string[];  // expecting the genders prop
+  statuses: string[];
+  genders: string[];
   selectedStatus: string | undefined;
   selectedGender: string | undefined;
   onStatusFilter: (status: string | undefined) => void;
@@ -34,6 +34,12 @@ const Title: React.FC<TitleProps> = ({
 }) => {
   const [visibleRight, setVisibleRight] = useState(false);
 
+  // Create filterOptions object using the props
+  const filterOptions = useMemo(() => ({
+    status: statuses,
+    gender: genders
+  }), [statuses, genders]);
+
   const defaultStatus = selectedStatus ?? 'All';
   const defaultGender = selectedGender ?? 'All';
 
@@ -42,8 +48,8 @@ const Title: React.FC<TitleProps> = ({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FilterFormValues>({
-    resolver: zodResolver(filterSchema),
+  } = useForm<UserFilterFormValues>({
+    resolver: zodResolver(userFilterSchema),
     defaultValues: {
       name: '',
       status: defaultStatus,
@@ -56,7 +62,7 @@ const Title: React.FC<TitleProps> = ({
     onFilter(text);
   };
 
-  const handleFormSubmit = (data: FilterFormValues) => {
+  const handleFormSubmit = (data: UserFilterFormValues) => {
     const statusFilter = data.status === 'All' ? undefined : data.status;
     const genderFilter = data.gender === 'All' ? undefined : data.gender;
 
@@ -75,6 +81,7 @@ const Title: React.FC<TitleProps> = ({
     onStatusFilter(undefined);
     onGenderFilter(undefined);
     onResetFilters();
+    setVisibleRight(false);
   };
 
   return (
@@ -91,6 +98,7 @@ const Title: React.FC<TitleProps> = ({
           />
         </div>
       </div>
+      <hr className='my-5' />
 
       <FilterSidebar
         visible={visibleRight}
@@ -99,9 +107,8 @@ const Title: React.FC<TitleProps> = ({
         onReset={handleResetFilters}
         control={control}
         errors={errors}
-        CustomFilterForm={FilterUserForm}  // Pass the custom form here
-        statuses={statuses}  // Pass statuses directly as props
-        genders={genders}    // Pass genders directly as props
+        CustomFilterForm={UserFilterForm}
+        filterOptions={filterOptions}
       />
     </div>
   );

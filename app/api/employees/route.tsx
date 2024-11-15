@@ -13,18 +13,52 @@ export async function GET(req: Request) {
 
   const skip = (page - 1) * limit; // calculate the number of records to skip
 
+  // Extract filter parameters from the query string
+  const nameFilter = url.searchParams.get('name') || '';
+  const roleFilter = url.searchParams.get('role') || '';
+  const companyFilter = url.searchParams.get('company') || '';
+
   try {
     // Get the employees with pagination
     const employees = await prisma.employee.findMany({
       skip, // skip the first (page - 1) * limit records
       take: limit, // limit the number of records to 'limit'
+      where: {
+        name: {
+          contains: nameFilter, // Filter by name (case-insensitive)
+          mode: 'insensitive', // Make it case-insensitive
+        },
+        role: {
+          contains: roleFilter,  // Filter by role (case-insensitive)
+          mode: 'insensitive',   // Make it case-insensitive
+        },
+        company: {
+          contains: companyFilter,  // Filter by company (case-insensitive)
+          mode: 'insensitive',      // Make it case-insensitive
+        },
+      },
       orderBy: {
         createdAt: 'asc'  // Ensure the records are sorted by `createdAt` in ascending order
       },
     });
 
     // Get the total number of employees for pagination purposes
-    const totalEmployees = await prisma.employee.count();
+    const totalEmployees = await prisma.employee.count({
+      where: {
+        name: {
+          contains: nameFilter,
+          mode: 'insensitive',
+        },
+        role: {
+          contains: roleFilter,
+          mode: 'insensitive',
+        },
+        company: {
+          contains: companyFilter,
+          mode: 'insensitive',
+        },
+      },
+    });
     const totalPages = Math.ceil(totalEmployees / limit);
 
     // Format joinDate to YYYY-MM-DD for each employee
