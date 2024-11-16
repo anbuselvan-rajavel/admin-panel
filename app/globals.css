@@ -17,9 +17,37 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  }
+
+  /* .p-dropdown:not(.p-disabled).p-focus {
+    box-shadow: none;
+  } */
+
+  .custom-boxShadow{
+    box-shadow: none;
+  }
+
+  /* Custom styles for Paginator links */
+.p-paginator .p-paginator-page {
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.p-dropdown:not(.p-disabled).p-focus {
-  box-shadow: none;
+/* Style the active page link */
+.p-paginator .p-paginator-page.p-highlight {
+  background-color: #A78BFA;  /* Violet  background for active page */
+  color: white;                /* White text for active page */
+  font-weight: normal;           /* Bold text for active page */
+  border-radius: 50%;          /* Make the active page circular */
+}
+
+/* Hover effect for paginator page links */
+.p-paginator .p-paginator-page:hover {
+  background-color: lightgray; /* Light gray background on hover */
+  color: black;                /* Black text on hover */
+}
+
+/* Style the disabled page link (e.g., when at the first or last page) */
+.p-paginator .p-paginator-page.p-disabled {
+  background-color: #f0f0f0;
+  color: #d3d3d3;
 }

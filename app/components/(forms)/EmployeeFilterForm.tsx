@@ -56,7 +56,7 @@ const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
               value={field.value}
               onChange={field.onChange}
               options={filterOptions.role}
-              className='w-full border-2 border-violet-500'
+              className='w-full border-2 border-violet-500 custom-boxShadow'
               placeholder='Select Role'
             />
           )}
@@ -77,7 +77,7 @@ const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
               value={field.value}
               onChange={field.onChange}
               options={filterOptions.company}
-              className='w-full border-2 border-violet-500'
+              className='w-full border-2 border-violet-500 custom-boxShadow'
               placeholder='Select Company'
             />
           )}

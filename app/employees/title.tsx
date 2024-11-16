@@ -5,6 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EmployeeFilterFormValues, employeeFilterSchema } from '../schema/filterFormSchema';
 import EmployeeFilterForm from '../components/(forms)/EmployeeFilterForm';
+import { EmployeeCreateFormValues } from '../schema/createEmployeeSchema';
+import axios from 'axios';
+import EmployeeCreateForm from '../components/(forms)/EmployeeCreateForm';
 
 
 interface TitleProps {
@@ -33,6 +36,9 @@ const Title: React.FC<TitleProps> = ({
     activeFilterCount,
 }) => {
     const [visibleRight, setVisibleRight] = useState(false);
+
+     // State to store employees list
+     const [employees, setEmployees] = useState<any[]>([]); // You can define a more specific type if needed
 
     //create filterOptions object using the props
     const filterOptions = useMemo(() => ({
@@ -82,6 +88,17 @@ const Title: React.FC<TitleProps> = ({
         onCompanyFilter(undefined);
         onResetFilters();
     }
+
+    
+  const handleCreateEmployee = async (data: EmployeeCreateFormValues) => {
+    try{
+      const response = await axios.post('http://localhost:3000/api/employees', data);
+       // Update the employees state after successful creation
+      setEmployees(prevEmployees => [...prevEmployees, response.data]);
+    }catch(error){
+      console.error("Error creating employee:", error);      
+    }
+  }
     return (
         <div className='bg-zinc-100'>
             <div className='grid grid-cols-5 mb-4'>
@@ -93,7 +110,10 @@ const Title: React.FC<TitleProps> = ({
                         handleFilterChange={handleFilterChange}
                         setVisibleRight={setVisibleRight}
                         activeFilterCount={activeFilterCount}
-                        searchPlaceholder='Search Employees...' />
+                        searchPlaceholder='Search Employees...'
+                        FormComponent={EmployeeCreateForm}
+                        onCreate={handleCreateEmployee} 
+                         />
                 </div>
             </div>
             <hr className='my-5' />

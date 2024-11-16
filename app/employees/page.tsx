@@ -5,11 +5,13 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import axios from 'axios';
 import { Skeleton } from 'primereact/skeleton';
-import { Paginator, PaginatorChangeEvent, PaginatorPageChangeEvent, PaginatorRowsPerPageDropdownOptions } from 'primereact/paginator';
+import { Paginator, PaginatorChangeEvent, PaginatorPageChangeEvent, PaginatorRowsPerPageDropdownOptions, PaginatorTemplateOptions } from 'primereact/paginator';
 import { Dropdown } from 'primereact/dropdown';
 import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-
+import 'primereact/resources/primereact.min.css';
+import 'primereact/resources/themes/lara-light-cyan/theme.css'; // or any theme you are using
+import 'primeicons/primeicons.css';
 
 interface Employee {
   id: string;
@@ -169,9 +171,9 @@ const fetchEmployees = async (
     setSelectedCompany(undefined);
     setPage(1);
   }
-
-  const paginatorTemplate = {
+  const paginatorTemplate: PaginatorTemplateOptions = {
     layout: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport',
+    
     RowsPerPageDropdown: (options: PaginatorRowsPerPageDropdownOptions) => {
       const dropdownOptions = [
         { label: 5, value: 5 },
@@ -185,14 +187,14 @@ const fetchEmployees = async (
 
       return (
         <React.Fragment>
-          <Dropdown value={options.value} options={dropdownOptions} onChange={handleChange} className='border' />
+          <Dropdown value={options.value} options={dropdownOptions} onChange={handleChange} className='border-2 border-gray-300 custom-boxShadow' />
         </React.Fragment>
       );
     },
     CurrentPageReport: (options: CurrentPageReportOptions) => {
       return (
-        <span style={{ color: 'var(--text-color)', userSelect: 'none', width: '120px', textAlign: 'center' }}>
-          {options.first} - {options.last} of {options.totalRecords}
+        <span style={{ color: 'var(--text-color)', userSelect: 'none', width: '300px', textAlign: 'center' }}>
+         Showing {options.first} - {options.last} of {options.totalRecords} Results
         </span>
       );
     }
