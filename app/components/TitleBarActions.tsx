@@ -1,33 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import { Dialog } from 'primereact/dialog';
 
 interface TitleBarActionsProps {
-    handleFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    setVisibleRight: (value: boolean) => void;
-    activeFilterCount?: number;
-    searchPlaceholder?: string;
+  handleFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setVisibleRight: (value: boolean) => void;
+  activeFilterCount?: number;
+  searchPlaceholder?: string;
+  FormComponent: React.FC<any>;  // Accept the form component as a prop
+  onCreate: (data: any) => void;
 }
 
-const TitleBarActions: React.FC<TitleBarActionsProps> = ({ 
-  handleFilterChange, 
-  setVisibleRight, 
-  activeFilterCount = 0 ,
-  searchPlaceholder = "Search..."
+const TitleBarActions: React.FC<TitleBarActionsProps> = ({
+  handleFilterChange,
+  setVisibleRight,
+  activeFilterCount = 0,
+  searchPlaceholder = "Search...",
+  FormComponent,
+  onCreate,
 }) => {
+  const [visible, setVisible] = useState(false);
+
+  const headerElement = (
+    <div className="text-center">
+      <span className="font-bold white-space-nowrap">Create New</span>
+    </div>
+  );
+
   return (
     <div className="flex items-center gap-4">
-      <IconField iconPosition='left'>
+      <IconField iconPosition="left">
         <InputIcon className="pi pi-search" />
         <InputText
           onChange={handleFilterChange}
           placeholder={searchPlaceholder}
           className="pl-10 border-purple-500 border-2 rounded-md h-12 w-56 focus:outline-none focus:shadow-none"
         />
-      </IconField >
+      </IconField>
 
       <Button
         icon="pi pi-filter"
@@ -48,7 +61,18 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
         className="border-none bg-violet-400 h-12 p-5 text-slate-50"
         severity="help"
         label="Create"
+        onClick={() => setVisible(true)} // Open the Create Form Dialog
       />
+      <Dialog
+        visible={visible}
+        modal
+        header={headerElement}
+        style={{ width: '50rem' }}
+        onHide={() => setVisible(false)}
+      >
+        {/* Pass the form component to render */}
+        <FormComponent onSubmit={onCreate} resetForm={() => setVisible(false)} errors={null} />
+      </Dialog>
     </div>
   );
 };

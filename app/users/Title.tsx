@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import 'primeicons/primeicons.css';
 import { UserFilterFormValues, userFilterSchema } from '../schema/filterFormSchema';
 import UserFilterForm from '../components/(forms)/UserFilterForm';
+import UserCreateForm from '../components/(forms)/UserCreateForm';
 
 interface TitleProps {
   onFilter: (filterText: string) => void;
@@ -84,6 +85,10 @@ const Title: React.FC<TitleProps> = ({
     setVisibleRight(false);
   };
 
+  const handleCreateUser = async () => {
+    
+  }
+
   return (
     <div className="bg-zinc-100">
       <div className="grid grid-cols-5 mb-4">
@@ -95,6 +100,9 @@ const Title: React.FC<TitleProps> = ({
             handleFilterChange={handleFilterChange}
             setVisibleRight={setVisibleRight}
             activeFilterCount={activeFilterCount}
+             searchPlaceholder='Search Users...'
+             FormComponent={UserCreateForm}
+             onCreate={handleCreateUser}
           />
         </div>
       </div>

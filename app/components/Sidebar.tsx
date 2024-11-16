@@ -37,7 +37,7 @@ const Sidebar = () => {
                 {/* Dashboard Link */}
                 <Link 
                     href="/" 
-                    className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'dashboard' ? 'bg-zinc-300 text-violet-500' : 'hover:bg-zinc-300'}`}
+                    className={`py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'dashboard' ? 'bg-zinc-300 text-violet-500' : 'hover:bg-zinc-300'}`}
                 >
                     <Home size={24} color={activeMenu === 'dashboard' ? 'violet' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Dashboard</span>
@@ -46,7 +46,7 @@ const Sidebar = () => {
                 {/* Employees Link */}
                 <Link 
                     href="/employees" 
-                    className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'employees' ? 'bg-zinc-300 text-green-500' : 'hover:bg-zinc-300'}`}
+                    className={`py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'employees' ? 'bg-zinc-300 text-green-500' : 'hover:bg-zinc-300'}`}
                 >
                     <BriefcaseMedical size={24} color={activeMenu === 'employees' ? 'green' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Employees</span>
@@ -55,7 +55,7 @@ const Sidebar = () => {
                 {/* Users Link */}
                 <Link 
                     href="/users" 
-                    className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'users' ? 'bg-zinc-300 text-red-500' : 'hover:bg-zinc-300'}`}
+                    className={`py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'users' ? 'bg-zinc-300 text-red-500' : 'hover:bg-zinc-300'}`}
                 >
                     <User size={24} color={activeMenu === 'users' ? 'red' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Users</span>
@@ -64,7 +64,7 @@ const Sidebar = () => {
                 {/* Settings Link */}
                 <Link 
                     href="/settings" 
-                    className={`block py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'settings' ? 'bg-zinc-300 text-blue-500' : 'hover:bg-zinc-300'}`}
+                    className={`py-2.5 px-4 rounded transition duration-200 flex items-center ${activeMenu === 'settings' ? 'bg-zinc-300 text-blue-500' : 'hover:bg-zinc-300'}`}
                 >
                     <Settings size={24} color={activeMenu === 'settings' ? 'blue' : 'currentColor'} />
                     <span className={`ml-2 transition-opacity duration-300 ${isCollapsed ? 'hidden' : 'block'}`}>Settings</span>

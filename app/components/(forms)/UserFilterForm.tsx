@@ -56,7 +56,7 @@ const UserFilterForm: React.FC<UserFilterFormProps> = ({
               value={field.value}
               onChange={field.onChange}
               options={filterOptions.status}
-              className='w-full border-2 border-violet-500'
+              className='w-full border-2 border-violet-500 custom-boxShadow'
               placeholder='Select Status'
             />
           )}
@@ -77,7 +77,7 @@ const UserFilterForm: React.FC<UserFilterFormProps> = ({
               value={field.value}
               onChange={field.onChange}
               options={filterOptions.gender}
-              className='w-full border-2 border-violet-500'
+              className='w-full border-2 border-violet-500 custom-boxShadow'
               placeholder='Select Gender'
             />
           )}

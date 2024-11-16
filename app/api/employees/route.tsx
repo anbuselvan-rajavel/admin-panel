@@ -38,7 +38,7 @@ export async function GET(req: Request) {
         },
       },
       orderBy: {
-        createdAt: 'asc'  // Ensure the records are sorted by `createdAt` in ascending order
+        createdAt: 'desc'  // Ensure the records are sorted by `createdAt` in descending order
       },
     });
 
