@@ -31,6 +31,11 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
     </div>
   );
 
+  const handleSubmit = (data: any) => {
+    onCreate(data); // Pass form data to onCreate
+    setVisible(false); // Close dialog after submitting
+  };
+
   return (
     <div className="flex items-center gap-4">
       <IconField iconPosition="left">
@@ -71,7 +76,7 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
         onHide={() => setVisible(false)}
       >
         {/* Pass the form component to render */}
-        <FormComponent onSubmit={onCreate} resetForm={() => setVisible(false)} errors={null} />
+        <FormComponent onSubmit={handleSubmit} resetForm={() => setVisible(false)} errors={null} />
       </Dialog>
     </div>
   );

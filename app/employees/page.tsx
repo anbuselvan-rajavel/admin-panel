@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Title from './title';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -10,8 +10,11 @@ import { Dropdown } from 'primereact/dropdown';
 import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import 'primereact/resources/primereact.min.css';
-import 'primereact/resources/themes/lara-light-cyan/theme.css'; // or any theme you are using
+import 'primereact/resources/themes/lara-light-cyan/theme.css';
 import 'primeicons/primeicons.css';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
+import EmployeeEditForm from '../components/(forms)/EmployeeEditForm';
 
 interface Employee {
   id: string;
@@ -37,11 +40,14 @@ const Employees = () => {
   const [selectedRole, setSelectedRole] = useState<string | undefined>(undefined);
   const [selectedCompany, setSelectedCompany] = useState<string | undefined>(undefined);
   const [nameFilter, setNameFilter] = useState('');
+  // In your Employees component, add these state variables
+const [editDialogVisible, setEditDialogVisible] = useState(false);
+const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
   // Pagination State
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10); // You can adjust this or make it dynamic if needed
-  const [totalRecords, setTotalRecords] = useState(0);  // Total number of records
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   const companies = [
     "All",
@@ -133,8 +139,8 @@ const fetchEmployees = async (
 };
 
   useEffect(() => {
-    fetchEmployees(page, limit, nameFilter, selectedRole, selectedCompany);
-  }, [page, limit, nameFilter, selectedRole, selectedCompany]); // Refetch data whenever page or limit changes
+    fetchEmployees(currentPage, limit, nameFilter, selectedRole, selectedCompany);
+  }, [currentPage, limit, nameFilter, selectedRole, selectedCompany]); // Refetch data whenever page or limit changes
 
   useEffect(() => {
     // Whenever employees change, reset filtered employees
@@ -145,9 +151,21 @@ const fetchEmployees = async (
     return "border-b border-gray-200";
   };
 
+  const toast = useRef<Toast | null>(null);
+
+  const handleRefreshEmployees = () => {
+    fetchEmployees(
+      currentPage,
+      limit,
+      nameFilter,
+      selectedRole,
+      selectedCompany
+    );
+  };
+
   // Pagination Change handler
   const onPageChange = (event: PaginatorPageChangeEvent) => {
-    setPage(event.page + 1);  // PrimeReact pagination is zero-indexed, so add 1
+    setCurrentPage(event.page + 1);  // PrimeReact pagination is zero-indexed, so add 1
     setLimit(event.rows); // Update rows per page
   };
 
@@ -162,14 +180,14 @@ const fetchEmployees = async (
     setNameFilter(name);
     setSelectedRole(role);
     setSelectedCompany(company);
-    setPage(1);
+    setCurrentPage(1);
   }
 
   const handleResetFilters = () => {
     setNameFilter("");
     setSelectedRole(undefined);
     setSelectedCompany(undefined);
-    setPage(1);
+    setCurrentPage(1);
   }
   const paginatorTemplate: PaginatorTemplateOptions = {
     layout: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport',
@@ -216,24 +234,69 @@ const fetchEmployees = async (
 
   // Handle Edit action
   const handleEdit = (employee: Employee) => {
-    console.log('Edit clicked for', employee);
-    // Implement your edit logic here, maybe open a modal with the employee details
+    // Convert joinDate to date string
+    const formattedEmployee = {
+      ...employee,
+      joinDate: employee.joinDate ? 
+        (typeof employee.joinDate === 'string' 
+          ? employee.joinDate 
+          : new Date(employee.joinDate).toISOString().split('T')[0]) 
+        : ''
+    };
+    setSelectedEmployee(formattedEmployee);
+    setEditDialogVisible(true);
   };
 
+  const handleUpdateEmployee = (updatedEmployee: Employee) => {
+    setEmployees(prevEmployees => 
+      prevEmployees.map(emp => 
+        emp.id === updatedEmployee.id ? updatedEmployee : emp
+      )
+    );
+  }
+  
   // Handle Delete action
-  const handleDelete = async (employeeId: string) => {
-    if (window.confirm('Are you sure you want to delete this employee?')) {
-      try {
-        await axios.delete(`http://localhost:3000/api/employees/${employeeId}`);
-        setEmployees((prevEmployees) => prevEmployees.filter((emp) => emp.id !== employeeId));
-        setTotalRecords((prevTotal) => prevTotal - 1);
-      } catch (error) {
-        setError('Error deleting employee');
-        console.log(error);
+  const handleDelete = (employeeId: string) => {
+    confirmDialog({
+      message: 'Are you sure you want to delete this employee?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-info-circle',
+      position: 'top',
+      accept: async () => {
+        try {
+          await axios.delete(`http://localhost:3000/api/employees/${employeeId}`);
+          setEmployees((prevEmployees) => prevEmployees.filter((emp) => emp.id !== employeeId));
+          setTotalRecords((prevTotal) => prevTotal - 1);
+          // Add null check for toast
+          toast.current?.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Employee deleted successfully', 
+            life: 3000 
+          });
+        } catch (error) {
+          setError('Error deleting employee');
+          // Add null check for toast
+          toast.current?.show({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Failed to delete employee', 
+            life: 3000 
+          });
+          console.log(error);
+        }
+      },
+      reject: () => {
+        // Add null check for toast
+        toast.current?.show({ 
+          severity: 'info', 
+          summary: 'Cancelled', 
+          detail: 'Delete operation cancelled', 
+          life: 3000 
+        });
       }
-    }
+    });
   };
-
   const formatSalary = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -243,6 +306,17 @@ const fetchEmployees = async (
   }
 
    return (
+    <>
+     <Toast ref={toast} />
+     <ConfirmDialog />
+     <EmployeeEditForm 
+       visible={editDialogVisible}
+       employee={selectedEmployee}
+       onHide={() => setEditDialogVisible(false)}
+       onUpdate={handleUpdateEmployee}
+       roles={roles}
+       companies={companies}
+     />
     <div>
       <Title
         onFilter={handleFilter}
@@ -255,6 +329,7 @@ const fetchEmployees = async (
         onCompanyFilter={(company) => setSelectedCompany(company)}
         onResetFilters={handleResetFilters}
         activeFilterCount={activeFilterCount}
+        onRefreshEmployees={handleRefreshEmployees} 
       />
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {loading ? (
@@ -297,7 +372,7 @@ const fetchEmployees = async (
           </DataTable>
 
           <Paginator
-            first={(page - 1) * limit} // Calculate starting item index (zero-indexed)
+            first={(currentPage - 1) * limit} // Calculate starting item index (zero-indexed)
             rows={limit}
             totalRecords={totalRecords} // Calculate total records based on pages
             onPageChange={onPageChange} // Handle page change
@@ -306,6 +381,7 @@ const fetchEmployees = async (
         </div>
       )}
     </div>
+    </>
   );
 };
 
