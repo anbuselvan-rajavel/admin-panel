@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
@@ -96,11 +97,20 @@ export async function PUT(
       joinDate: updatedEmployee.joinDate.toISOString().split('T')[0],
     };
 
+    // Revalidate both the list and detail pages
+    revalidatePath('/employees');
+    revalidatePath(`/employees/${id}`);
+
     return NextResponse.json({
       success: true,
       message: 'Employee updated successfully',
       data: formattedEmployee
-    }, { status: 200 });
+    }, { 
+      status: 200,
+      headers: {
+        'Cache-Control': 'no-store, must-revalidate',
+      }
+    });
   } catch (error: unknown) {
     console.error('Error updating employee:', error);
     
