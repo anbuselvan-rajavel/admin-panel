@@ -5,9 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EmployeeFilterFormValues, employeeFilterSchema } from '../schema/filterFormSchema';
 import EmployeeFilterForm from '../components/(forms)/EmployeeFilterForm';
-import { EmployeeCreateFormValues } from '../schema/createEmployeeSchema';
 import axios from 'axios';
 import EmployeeCreateForm from '../components/(forms)/EmployeeCreateForm';
+import { EmployeeFormData } from '../schema/employeeSchema';
 
 interface TitleProps {
   onFilter: (filterText: string) => void;
@@ -76,7 +76,7 @@ const Title: React.FC<TitleProps> = ({
     onResetFilters();
   };
 
-  const handleCreateEmployee = async (data: EmployeeCreateFormValues) => {
+  const handleCreateEmployee = async (data: EmployeeFormData) => {
     try {
       await axios.post('http://localhost:3000/api/employees', data);
       onRefreshEmployees(); // Trigger refetch of employee data after creation

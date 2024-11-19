@@ -91,13 +91,13 @@ const UserFilterForm: React.FC<UserFilterFormProps> = ({
         <Button
           label="Reset"
           onClick={onReset}
-          className="bg-red-400 w-24 h-12 p-3 text-neutral-50 flex justify-center items-center"
+          className="bg-red-500 w-24 h-12 p-3 text-white flex justify-center items-center"
           icon="pi pi-times"
         />
         <Button
           type="submit"
           label="Apply"
-          className="bg-green-400 w-24 h-12 p-3 text-neutral-50 flex justify-center items-center"
+          className="bg-green-500 w-24 h-12 p-3 text-white flex justify-center items-center"
           icon="pi pi-check"
         />
       </div>
