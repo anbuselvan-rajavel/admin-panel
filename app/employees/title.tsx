@@ -102,7 +102,7 @@ const Title: React.FC<TitleProps> = ({
           />
         </div>
       </div>
-      <hr className="my-5" />
+      <hr className="my-5" /> 
       <FilterSidebar
         visible={visibleRight}
         onHide={() => setVisibleRight(false)}

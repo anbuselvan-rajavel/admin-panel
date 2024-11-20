@@ -207,12 +207,12 @@ const Employees = () => {
 
   const handleDelete = (employeeId: number) => {
     confirmDialog({
-      message: 'Are you sure you want to delete this employee?',
+      message: 'Do you want to delete this employee?',
       header: 'Delete Confirmation',
       icon: 'pi pi-info-circle',
       position: 'top',
-      acceptClassName: 'm-2',
-      rejectClassName: 'm-2',
+      acceptClassName: 'm-2 w-10 border-2 border-gray-200',
+      rejectClassName: 'm-2 w-10 border-2 border-gray-200',
       accept: async () => {
         try {
           await axios.delete(`${API_BASE_URL}/employees/${employeeId}`);

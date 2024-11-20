@@ -6,9 +6,7 @@ import { Column } from "primereact/column";
 import { Paginator } from "primereact/paginator";
 import { Skeleton } from "primereact/skeleton";
 import { Tag } from "primereact/tag";
-import Title from "./Title";
-
-
+import Title from "./title";
 
 interface User {
   id: number;
