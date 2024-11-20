@@ -223,7 +223,7 @@ const EmployeeCreateForm: React.FC<EmployeeCreateFormProps> = ({
                   field.onChange(formattedDate);
                 }}
                 dateFormat="dd/mm/yy"
-                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200"
+                className="w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200"
                 showIcon
                 maxDate={new Date()}
               />
@@ -243,7 +243,7 @@ const EmployeeCreateForm: React.FC<EmployeeCreateFormProps> = ({
                 id="salary"
                 value={field.value}
                 onValueChange={(e) => field.onChange(e.value)}
-                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200"
+                className="w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200"
                 mode="currency"
                 currency="INR"
                 locale="en-IN"
@@ -256,19 +256,19 @@ const EmployeeCreateForm: React.FC<EmployeeCreateFormProps> = ({
 
         {/* Form buttons */}
         <div className="flex justify-end space-x-2 mt-4">
-          <Button 
-            type="submit" 
-            label="Create" 
-            icon="pi pi-save" 
-            className="bg-green-500 p-2 w-full" 
-          />
-          <Button 
+        <Button 
             type="button" 
             label="Reset" 
             icon="pi pi-refresh" 
             className="bg-red-500 p-2 w-full" 
             onClick={resetForm} 
           />
+          <Button 
+            type="submit" 
+            label="Create" 
+            icon="pi pi-save" 
+            className="bg-green-500 p-2 w-full" 
+          />          
         </div>
       </form>
     </>
