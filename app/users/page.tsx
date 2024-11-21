@@ -6,7 +6,9 @@ import { Column } from "primereact/column";
 import { Paginator } from "primereact/paginator";
 import { Skeleton } from "primereact/skeleton";
 import { Tag } from "primereact/tag";
-import Title from "./title";
+import UserTitle from "./title";
+
+
 
 interface User {
   id: number;
@@ -140,7 +142,7 @@ const Users = () => {
 
   return (
     <div className="card">
-      <Title
+      <UserTitle
         onFilter={handleFilter}
         onApplyFilters={handleApplyFilters}
         statuses={statuses}

@@ -11,6 +11,8 @@ interface TitleBarActionsProps {
   setVisibleRight: (value: boolean) => void;
   activeFilterCount?: number;
   searchPlaceholder?: string;
+  roles: string[];  // Add roles here
+  companies: string[];  // Add companies here
   FormComponent: React.FC<any>;  // Accept the form component as a prop
   onCreate: (data: any) => void;
 }
@@ -22,6 +24,8 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
   searchPlaceholder = "Search...",
   FormComponent,
   onCreate,
+  roles,
+  companies,
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -76,7 +80,13 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
         onHide={() => setVisible(false)}
       >
         {/* Pass the form component to render */}
-        <FormComponent onSubmit={handleSubmit} resetForm={() => setVisible(false)} errors={null} />
+        <FormComponent  
+        onSubmit={handleSubmit} 
+        resetForm={() => setVisible(false)} 
+        errors={null}
+        roles={roles}  // Ensure these are passed
+        companies={companies}  // Ensure these are passed
+        />
       </Dialog>
     </div>
   );
