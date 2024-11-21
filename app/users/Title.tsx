@@ -103,6 +103,7 @@ const UserTitle: React.FC<TitleProps> = ({
              searchPlaceholder='Search Users...'
              FormComponent={UserCreateForm}
              onCreate={handleCreateUser}
+            
           />
         </div>
       </div>

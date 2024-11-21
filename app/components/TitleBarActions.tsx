@@ -11,8 +11,8 @@ interface TitleBarActionsProps {
   setVisibleRight: (value: boolean) => void;
   activeFilterCount?: number;
   searchPlaceholder?: string;
-  roles: string[];  // Add roles here
-  companies: string[];  // Add companies here
+  roles?: string[];  // Add roles here
+  companies?: string[];  // Add companies here
   FormComponent: React.FC<any>;  // Accept the form component as a prop
   onCreate: (data: any) => void;
 }
