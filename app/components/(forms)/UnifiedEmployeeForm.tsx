@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, FieldError } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
@@ -11,6 +11,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { EmployeeFormData, employeeSchema } from '@/app/schema/employeeSchema';
 import { Employee } from '@/types/employee';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { ZodError } from 'zod';
+
+// More specific type for errors
+type FormErrors = Partial<Record<keyof EmployeeFormData, { message: string }>>;
 
 interface UnifiedEmployeeFormProps {
   mode?: 'create' | 'edit';
@@ -19,7 +23,7 @@ interface UnifiedEmployeeFormProps {
   onHide?: () => void; 
   initialData?: Employee | null;
   resetForm?: () => void;
-  errors?: any;
+  errors?: FormErrors;
   roles?: string[];
   companies?: string[];
   isDialog?: boolean;
@@ -42,7 +46,7 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
   onCancel = () => {},
   onHide, 
   initialData = null,
-  resetForm = () => {},
+  resetForm,
   errors: formErrors = {},
   roles = [],
   companies = [],
@@ -62,8 +66,8 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
 
   const toast = useRef<Toast>(null);
 
-   // Memoize role and company options
-   const roleOptions = useMemo(() => 
+  // Memoize role and company options
+  const roleOptions = useMemo(() => 
     roles.map(role => ({ label: role, value: role })), 
     [roles]
   );
@@ -102,19 +106,27 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
       if (mode === 'create') {
         reset(defaultValues);
       }
-    } catch (error) {
+    } catch (submitError: unknown) {
+      let errorMessage = 'An unexpected error occurred';
+      
+      if (submitError instanceof ZodError) {
+        errorMessage = submitError.errors.map(err => err.message).join(', ');
+      } else if (submitError instanceof Error) {
+        errorMessage = submitError.message;
+      }
+
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: `Failed to ${mode === 'create' ? 'create' : 'update'} employee`,
+        detail: `Failed to ${mode === 'create' ? 'create' : 'update'} employee: ${errorMessage}`,
         life: 3000
       });
     }
-  }, [onSubmit, mode, reset,resetForm]);
+  }, [onSubmit, mode, reset]);
 
-  const renderError = (error?: string) => {
-    return error ? (
-      <div className="text-red-500 mt-1 text-sm">{error}</div>
+  const renderError = (error?: FieldError) => {
+    return error?.message ? (
+      <div className="text-red-500 mt-1 text-sm">{error.message}</div>
     ) : null;
   };
 
@@ -130,12 +142,11 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
             <InputText
               id="name"
               {...field}
-              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.name ? 'p-invalid' : ''
-                }`}
+              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.name ? 'p-invalid' : ''}`}
             />
           )}
         />
-        {renderError(errors.name?.message)}
+        {renderError(errors.name)}
       </div>
 
       {/* Email field */}
@@ -148,12 +159,11 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
             <InputText
               id="email"
               {...field}
-              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.email ? 'p-invalid' : ''
-                }`}
+              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.email ? 'p-invalid' : ''}`}
             />
           )}
         />
-        {renderError(errors.email?.message)}
+        {renderError(errors.email)}
       </div>
 
       {/* Role field */}
@@ -168,13 +178,12 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
               value={field.value}
               onChange={(e) => field.onChange(e.value)}
               options={roleOptions}
-              className={`w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.role ? 'p-invalid' : ''
-                }`}
+              className={`w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.role ? 'p-invalid' : ''}`}
               placeholder="Select a role"
             />
           )}
         />
-        {renderError(errors.role?.message)}
+        {renderError(errors.role)}
       </div>
 
       {/* Company field */}
@@ -189,13 +198,12 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
               value={field.value}
               onChange={(e) => field.onChange(e.value)}
               options={companyOptions}
-              className={`w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.company ? 'p-invalid' : ''
-                }`}
+              className={`w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.company ? 'p-invalid' : ''}`}
               placeholder="Select a company"
             />
           )}
         />
-        {renderError(errors.company?.message)}
+        {renderError(errors.company)}
       </div>
 
       {/* Join Date field */}
@@ -213,14 +221,13 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
                 field.onChange(date ? date.toISOString().split('T')[0] : '');
               }}
               dateFormat="dd/mm/yy"
-              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.joinDate ? 'p-invalid' : ''
-                }`}
+              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.joinDate ? 'p-invalid' : ''}`}
               showIcon
               maxDate={new Date()}
             />
           )}
         />
-        {renderError(errors.joinDate?.message)}
+        {renderError(errors.joinDate)}
       </div>
 
       {/* Salary field */}
@@ -234,8 +241,7 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
               id="salary"
               value={field.value}
               onValueChange={(e) => field.onChange(e.value)}
-              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.salary ? 'p-invalid' : ''
-                }`}
+              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.salary ? 'p-invalid' : ''}`}
               mode="currency"
               currency="INR"
               locale="en-IN"
@@ -243,7 +249,7 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
             />
           )}
         />
-        {renderError(errors.salary?.message)}
+        {renderError(errors.salary)}
       </div>
 
       {/* Form buttons */}
@@ -256,7 +262,7 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
           onClick={() => {
             reset();
             onCancel();
-            resetForm();
+            resetForm?.();
           }}
         />
         <Button
