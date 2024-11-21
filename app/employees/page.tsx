@@ -10,8 +10,10 @@ import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
-import EmployeeEditForm from '../components/(forms)/EmployeeEditForm';
 import { Employee as ImportedEmployee } from 'd:/Projects/admin-panel/types/employee';
+import UnifiedEmployeeForm from '../components/(forms)/UnifiedEmployeeForm';
+import { EmployeeFormData } from '../schema/employeeSchema';
+import { useForm } from 'react-hook-form';
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 15, 20];
@@ -26,6 +28,8 @@ interface Employee extends ImportedEmployee {
   company: string;
   joinDate: string;
   salary: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface FilterState {
@@ -39,13 +43,13 @@ const formatDate = (dateString: string) => {
   if (!dateString) return '';
   try {
     const date = new Date(dateString);
-    return isNaN(date.getTime()) 
-      ? dateString 
+    return isNaN(date.getTime())
+      ? dateString
       : new Intl.DateTimeFormat('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        }).format(date);
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
   } catch (error) {
     console.error('Error formatting date:', error);
     return dateString;
@@ -80,54 +84,56 @@ const Employees = () => {
     totalRecords: 0
   });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [mode, setMode] = useState<'edit' | 'create'>('create');  // Track the mode
+  const {reset} = useForm();
 
   const toast = useRef<Toast | null>(null);
 
-    // Fetch unique companies and roles
-    const fetchCompaniesAndRoles = useCallback(async () => {
-      try {
-        const uniqueCompanies = new Set<string>(['All']);
-        const uniqueRoles = new Set<string>(['All']);
-  
-        // First, fetch the first page to get total number of records
-        const initialResponse = await axios.get(`${API_BASE_URL}/employees?page=1&limit=${pagination.limit}`);
-        const totalRecords = initialResponse.data.meta.totalEmployees;
-        const totalPages = Math.ceil(totalRecords / pagination.limit);
-  
-        // Process the first page
-        initialResponse.data.data.forEach((employee: Employee) => {
+  // Fetch unique companies and roles
+  const fetchCompaniesAndRoles = useCallback(async () => {
+    try {
+      const uniqueCompanies = new Set<string>(['All']);
+      const uniqueRoles = new Set<string>(['All']);
+
+      // First, fetch the first page to get total number of records
+      const initialResponse = await axios.get(`${API_BASE_URL}/employees?page=1&limit=${pagination.limit}`);
+      const totalRecords = initialResponse.data.meta.totalEmployees;
+      const totalPages = Math.ceil(totalRecords / pagination.limit);
+
+      // Process the first page
+      initialResponse.data.data.forEach((employee: Employee) => {
+        if (employee.company) uniqueCompanies.add(employee.company);
+        if (employee.role) uniqueRoles.add(employee.role);
+      });
+
+      // Fetch remaining pages
+      const remainingPages = Array.from(
+        { length: totalPages - 1 },
+        (_, i) => axios.get(`${API_BASE_URL}/employees?page=${i + 2}&limit=${pagination.limit}`)
+      );
+
+      const responses = await Promise.all(remainingPages);
+
+      // Process remaining pages
+      responses.forEach(response => {
+        response.data.data.forEach((employee: Employee) => {
           if (employee.company) uniqueCompanies.add(employee.company);
           if (employee.role) uniqueRoles.add(employee.role);
         });
-  
-        // Fetch remaining pages
-        const remainingPages = Array.from(
-          { length: totalPages - 1 }, 
-          (_, i) => axios.get(`${API_BASE_URL}/employees?page=${i + 2}&limit=${pagination.limit}`)
-        );
-  
-        const responses = await Promise.all(remainingPages);
-  
-        // Process remaining pages
-        responses.forEach(response => {
-          response.data.data.forEach((employee: Employee) => {
-            if (employee.company) uniqueCompanies.add(employee.company);
-            if (employee.role) uniqueRoles.add(employee.role);
-          });
-        });
-  
-        setCompanies(Array.from(uniqueCompanies));
-        setRoles(Array.from(uniqueRoles));
-      } catch (error) {
-        console.error('Error fetching companies and roles:', error);
-        toast.current?.show({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to fetch companies and roles',
-          life: 3000
-        });
-      }
-    }, [pagination.limit]);
+      });
+
+      setCompanies(Array.from(uniqueCompanies));
+      setRoles(Array.from(uniqueRoles));
+    } catch (error) {
+      console.error('Error fetching companies and roles:', error);
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to fetch companies and roles',
+        life: 3000
+      });
+    }
+  }, [pagination.limit]);
 
   // Memoized values
   const activeFilterCount = useMemo(() => {
@@ -179,15 +185,22 @@ const Employees = () => {
     }));
   };
 
-  const handleUpdateEmployee = async (updatedEmployee: Employee) => {
+  const handleUpdateEmployee = async (formData: EmployeeFormData) => {
     try {
-      if (isNaN(new Date(updatedEmployee.joinDate).getTime())) {
+      // Check if joinDate is valid
+      if (isNaN(new Date(formData.joinDate).getTime())) {
         throw new Error('Invalid date format');
       }
 
+      // Make the API call to update the employee
+      await axios.put(`${API_BASE_URL}/employees/${formData.id}`, formData);
+
+      // Refresh the employee list and roles/companies
       setRefreshTrigger(prev => prev + 1);
-      await fetchCompaniesAndRoles(); // Refresh companies and roles after update
-      
+      await fetchCompaniesAndRoles();
+      setEditDialogVisible(false);
+
+      // Show success message
       toast.current?.show({
         severity: 'success',
         summary: 'Success',
@@ -217,7 +230,7 @@ const Employees = () => {
         try {
           await axios.delete(`${API_BASE_URL}/employees/${employeeId}`);
           await fetchEmployees();
-          await fetchCompaniesAndRoles(); // Refresh companies and roles after deletion
+          await fetchCompaniesAndRoles();
           toast.current?.show({
             severity: 'success',
             summary: 'Success',
@@ -239,11 +252,13 @@ const Employees = () => {
 
   const handleEdit = useCallback((employee: Employee) => {
     try {
-      const formattedEmployee = {
+      // Ensure that joinDate is in the correct format for the calendar component
+      const formattedEmployee: Employee = {
         ...employee,
-        joinDate: new Date(employee.joinDate).toISOString().split('T')[0]
+        joinDate: new Date(employee.joinDate).toISOString().split('T')[0]  // Format as 'yyyy-mm-dd'
       };
-      setSelectedEmployee(formattedEmployee as ImportedEmployee);
+      setMode('edit');
+      setSelectedEmployee(formattedEmployee);
       setEditDialogVisible(true);
     } catch (error) {
       console.error('Error formatting employee data:', error);
@@ -255,7 +270,6 @@ const Employees = () => {
       });
     }
   }, []);
-
   // Render methods
   const renderActionButtons = useCallback((rowData: Employee) => (
     <div className="flex justify-center gap-2">
@@ -277,22 +291,38 @@ const Employees = () => {
   if (error) {
     return <p className="text-red-500 mb-4">{error}</p>;
   }
+  const handleCancel = () => {
+    setEditDialogVisible(false);
+    setSelectedEmployee(null);
+    if (mode === 'create') {
+      reset();  // Reset form values when in create mode
+    }
+  };
+
+  const handleCreateNew = () => {
+    setMode('create');
+    setSelectedEmployee(null);
+    setEditDialogVisible(true);
+  };
 
   return (
     <>
       <Toast ref={toast} />
       <ConfirmDialog />
-      <EmployeeEditForm 
+      <UnifiedEmployeeForm
+        mode={mode}
+        onSubmit={handleUpdateEmployee}
         visible={editDialogVisible}
-        employee={selectedEmployee}
-        onHide={() => {
-          setEditDialogVisible(false);
-          setSelectedEmployee(null);
-        }}
-        onUpdate={handleUpdateEmployee}
+        initialData={selectedEmployee}
+        isDialog={true}
+        onHide={handleCancel}
+        onCancel={handleCancel}  // Ensure onCancel is implemented correctly
         roles={roles.filter(role => role !== 'All')}
         companies={companies.filter(company => company !== 'All')}
       />
+      {/* Render buttons to trigger edit or create new */}
+      <button onClick={handleCreateNew}>Create New Employee</button>
+      
       <div>
         <Title
           onFilter={(name) => setFilters(prev => ({ ...prev, name }))}
@@ -319,7 +349,7 @@ const Employees = () => {
           tableStyle={{ minWidth: '50rem' }}
           className="p-datatable-gridlines p-datatable-sm p-4 rounded-lg bg-white border-b border-gray-200"
         >
-          <Column field="name" header="Name" sortable style={{ width: '15%' }} 
+          <Column field="name" header="Name" sortable style={{ width: '15%' }}
             body={loading ? <Skeleton /> : undefined} />
           <Column field="email" header="Email" sortable style={{ width: '25%' }}
             body={loading ? <Skeleton /> : undefined} />

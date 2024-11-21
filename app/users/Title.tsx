@@ -21,7 +21,7 @@ interface TitleProps {
   activeFilterCount: number;
 }
 
-const Title: React.FC<TitleProps> = ({
+const UserTitle: React.FC<TitleProps> = ({
   onFilter,
   onApplyFilters,
   statuses,
@@ -122,4 +122,4 @@ const Title: React.FC<TitleProps> = ({
   );
 };
 
-export default Title;
+export default UserTitle;

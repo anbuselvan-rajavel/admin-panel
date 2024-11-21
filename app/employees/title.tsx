@@ -6,8 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { EmployeeFilterFormValues, employeeFilterSchema } from '../schema/filterFormSchema';
 import EmployeeFilterForm from '../components/(forms)/EmployeeFilterForm';
 import axios from 'axios';
-import EmployeeCreateForm from '../components/(forms)/EmployeeCreateForm';
 import { EmployeeFormData } from '../schema/employeeSchema';
+import UnifiedEmployeeForm from '../components/(forms)/UnifiedEmployeeForm';
 
 interface TitleProps {
   onFilter: (filterText: string) => void;
@@ -97,12 +97,14 @@ const Title: React.FC<TitleProps> = ({
             setVisibleRight={setVisibleRight}
             activeFilterCount={activeFilterCount}
             searchPlaceholder="Search Employees..."
-            FormComponent={EmployeeCreateForm}
+            roles={roles}
+            companies={companies}
+            FormComponent={UnifiedEmployeeForm}
             onCreate={handleCreateEmployee}
           />
         </div>
       </div>
-      <hr className="my-5" /> 
+      <hr className="my-5" />
       <FilterSidebar
         visible={visibleRight}
         onHide={() => setVisibleRight(false)}
