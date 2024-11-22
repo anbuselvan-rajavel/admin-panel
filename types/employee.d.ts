@@ -11,3 +11,11 @@ export interface Employee {
     updatedAt: string;
   }
   
+  export interface CreateEmployeeRequest {
+    name: string;
+    email: string;
+    role: string;
+    company: string;
+    joinDate: string;
+    salary: number;
+  }

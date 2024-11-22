@@ -8,7 +8,136 @@ function isPrismaError(error: unknown): error is Prisma.PrismaClientKnownRequest
   return error instanceof Prisma.PrismaClientKnownRequestError;
 }
 
-// GET method - Retrieve a single employee by ID
+/**
+ * @swagger
+ * /api/employees/{id}:
+ *   get:
+ *     summary: Get an employee by ID
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Employee ID
+ *     responses:
+ *       200:
+ *         description: Employee details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: Employee not found
+ *       400:
+ *         description: Invalid ID format
+ *       500:
+ *         description: Internal server error
+ *   
+ *   put:
+ *     summary: Update an employee
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Employee ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe Updated"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john.updated@example.com"
+ *               role:
+ *                 type: string
+ *                 example: "Senior Software Engineer"
+ *               company:
+ *                 type: string
+ *                 example: "Tech Corp"
+ *               joinDate:
+ *                 type: string
+ *                 format: date
+ *                 example: "2024-01-15"
+ *               salary:
+ *                 type: number
+ *                 example: 85000
+ *     responses:
+ *       200:
+ *         description: Employee updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Employee updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: Employee not found
+ *       400:
+ *         description: Invalid input or ID format
+ *       500:
+ *         description: Internal server error
+ * 
+ *   delete:
+ *     summary: Delete an employee
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Employee ID
+ *     responses:
+ *       200:
+ *         description: Employee deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Employee deleted successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: Employee not found
+ *       400:
+ *         description: Invalid ID format
+ *       500:
+ *         description: Internal server error
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -52,6 +181,73 @@ export async function GET(
   }
 }
 
+/**
+ * @swagger
+ * /api/employees/{id}:
+ *   put:
+ *     summary: Update an employee
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Employee ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe Updated"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john.updated@example.com"
+ *               role:
+ *                 type: string
+ *                 example: "Senior Software Engineer"
+ *               company:
+ *                 type: string
+ *                 example: "Tech Corp"
+ *               joinDate:
+ *                 type: string
+ *                 format: date
+ *                 example: "2024-01-15"
+ *               salary:
+ *                 type: number
+ *                 example: 85000
+ *     responses:
+ *       200:
+ *         description: Employee updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Employee updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: Employee not found
+ *       400:
+ *         description: Invalid input or ID format
+ *       500:
+ *         description: Internal server error
+ */
 // PUT method - Update an employee
 export async function PUT(
   request: NextRequest,
@@ -130,6 +326,42 @@ export async function PUT(
   }
 }
 
+/**
+ * @swagger
+ * /api/employees/{id}:
+ *   delete:
+ *     summary: Delete an employee
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Employee ID
+ *     responses:
+ *       200:
+ *         description: Employee deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Employee deleted successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: Employee not found
+ *       400:
+ *         description: Invalid ID format
+ *       500:
+ *         description: Internal server error
+ */
 // DELETE method - Delete an employee
 export async function DELETE(
   request: NextRequest,

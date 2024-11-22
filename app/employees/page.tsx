@@ -85,7 +85,7 @@ const Employees = () => {
   });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [mode, setMode] = useState<'edit' | 'create'>('create');  // Track the mode
-  const {reset} = useForm();
+  const { reset } = useForm();
 
   const toast = useRef<Toast | null>(null);
 
@@ -299,12 +299,6 @@ const Employees = () => {
     }
   };
 
-  const handleCreateNew = () => {
-    setMode('create');
-    setSelectedEmployee(null);
-    setEditDialogVisible(true);
-  };
-
   return (
     <>
       <Toast ref={toast} />
@@ -320,9 +314,7 @@ const Employees = () => {
         roles={roles.filter(role => role !== 'All')}
         companies={companies.filter(company => company !== 'All')}
       />
-      {/* Render buttons to trigger edit or create new */}
-      <button onClick={handleCreateNew}>Create New Employee</button>
-      
+
       <div>
         <Title
           onFilter={(name) => setFilters(prev => ({ ...prev, name }))}

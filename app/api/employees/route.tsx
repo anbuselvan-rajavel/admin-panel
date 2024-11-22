@@ -4,7 +4,32 @@ import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-// GET method - Retrieve paginated employees
+/**
+ * @swagger
+ * /api/employees:
+ *   get:
+ *     summary: List employees with pagination and filtering
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *     responses:
+ *       200:
+ *         description: List of employees
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Employee'
+ */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const page = Number(url.searchParams.get('page')) || 1; // Default to page 1
@@ -25,16 +50,16 @@ export async function GET(req: Request) {
       take: limit, // limit the number of records to 'limit'
       where: {
         name: {
-          contains: nameFilter, // Filter by name (case-insensitive)
-          mode: 'insensitive', // Make it case-insensitive
+          contains: nameFilter,
+          mode: 'insensitive',
         },
         role: {
-          contains: roleFilter,  // Filter by role (case-insensitive)
-          mode: 'insensitive',   // Make it case-insensitive
+          contains: roleFilter,
+          mode: 'insensitive',
         },
         company: {
-          contains: companyFilter,  // Filter by company (case-insensitive)
-          mode: 'insensitive',      // Make it case-insensitive
+          contains: companyFilter,
+          mode: 'insensitive',
         },
       },
       orderBy: {
@@ -80,7 +105,7 @@ export async function GET(req: Request) {
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1,
         nextPage: page < totalPages ? `${baseUrl}?page=${page + 1}&limit=${limit}` : null,
-prevPage: page > 1 ? `${baseUrl}?page=${page - 1}&limit=${limit}` : null
+        prevPage: page > 1 ? `${baseUrl}?page=${page - 1}&limit=${limit}` : null
       },
       data: formattedEmployees,
     }, { status: 200 });
@@ -90,7 +115,55 @@ prevPage: page > 1 ? `${baseUrl}?page=${page - 1}&limit=${limit}` : null
   }
 }
 
-// POST method - Create a new employee with a formatted joinDate
+/**
+ * @swagger
+ * /api/employees:
+ *   post:
+ *     summary: Create a new employee
+ *     tags: [Employees]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john.doe@example.com"
+ *               role:
+ *                 type: string
+ *                 example: "Software Engineer"
+ *               company:
+ *                 type: string
+ *                 example: "Tech Corp"
+ *               joinDate:
+ *                 type: string
+ *                 format: date
+ *                 example: "2024-01-15"
+ *               salary:
+ *                 type: number
+ *                 example: 75000
+ *     responses:
+ *       201:
+ *         description: Employee created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Employee'
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Internal server error
+ */
 export async function POST(request: Request) {
   try {
     const { name, email, role, company, joinDate, salary } = await request.json();

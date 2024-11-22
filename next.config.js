@@ -2,7 +2,7 @@
 const nextConfig = {
   /* config options here */
   reactStrictMode: true,
-  transpilePackages: ['primereact']
-};
+  transpilePackages: ['swagger-ui-react'],
+  };
 
 module.exports = nextConfig;
