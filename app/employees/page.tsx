@@ -10,17 +10,12 @@ import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
-import { Employee as ImportedEmployee } from 'd:/Projects/admin-panel/types/employee';
 import UnifiedEmployeeForm from '../components/(forms)/UnifiedEmployeeForm';
 import { EmployeeFormData } from '../schema/employeeSchema';
 import { useForm } from 'react-hook-form';
 
-// Constants
-const ROWS_PER_PAGE_OPTIONS = [5, 10, 15, 20];
-const API_BASE_URL = 'http://localhost:3000/api';
-
-// Types
-interface Employee extends ImportedEmployee {
+// Define the Employee interface directly here instead of importing
+interface Employee {
   id: number;
   name: string;
   email: string;
@@ -31,6 +26,10 @@ interface Employee extends ImportedEmployee {
   createdAt: string;
   updatedAt: string;
 }
+
+// Constants
+const ROWS_PER_PAGE_OPTIONS = [5, 10, 15, 20];
+const API_BASE_URL = 'http://localhost:3000/api';
 
 interface FilterState {
   name: string;
@@ -250,7 +249,7 @@ const Employees = () => {
       }
     });
   }, [fetchEmployees, fetchCompaniesAndRoles]);
-  
+
   const handleEdit = useCallback((employee: Employee) => {
     try {
       // Ensure that joinDate is in the correct format for the calendar component
