@@ -1,9 +1,9 @@
 import React from 'react'
 
-type Props = {}
-
-export default function UserCreateForm({}: Props) {
+const UserCreateForm: React.FC = () => {
   return (
     <div>UserCreateForm</div>
   )
 }
+
+export default UserCreateForm

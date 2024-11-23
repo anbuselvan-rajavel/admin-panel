@@ -124,10 +124,15 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
     }
   }, [onSubmit, mode, reset]);
 
-  const renderError = (error?: FieldError) => {
-    return error?.message ? (
-      <div className="text-red-500 mt-1 text-sm">{error.message}</div>
-    ) : null;
+  const renderError = (error?: FieldError, formErrors?: {message: string}
+  ) => {
+    if (error?.message) {
+      return <div className="text-red-500 mt-1 text-sm">{error.message}</div>;
+    }
+    if (formErrors?.message) {
+      return <div className="text-red-500 mt-1 text-sm">{formErrors.message}</div>;
+    }
+    return null;
   };
 
   const formContent = (
@@ -142,11 +147,11 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
             <InputText
               id="name"
               {...field}
-              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.name ? 'p-invalid' : ''}`}
+              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.name || formErrors.name ? 'p-invalid' : ''}`}
             />
           )}
         />
-        {renderError(errors.name)}
+        {renderError(errors.name, formErrors.name)}
       </div>
 
       {/* Email field */}
@@ -159,11 +164,11 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
             <InputText
               id="email"
               {...field}
-              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.email ? 'p-invalid' : ''}`}
+              className={`w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.email || formErrors.email ? 'p-invalid' : ''}`}
             />
           )}
         />
-        {renderError(errors.email)}
+        {renderError(errors.email, formErrors.email)}
       </div>
 
       {/* Role field */}
@@ -183,7 +188,7 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
             />
           )}
         />
-        {renderError(errors.role)}
+        {renderError(errors.role, formErrors.role)}
       </div>
 
       {/* Company field */}
@@ -198,12 +203,12 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
               value={field.value}
               onChange={(e) => field.onChange(e.value)}
               options={companyOptions}
-              className={`w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.company ? 'p-invalid' : ''}`}
+              className={`w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.company || formErrors.role ? 'p-invalid' : ''}`}
               placeholder="Select a company"
             />
           )}
         />
-        {renderError(errors.company)}
+        {renderError(errors.company, formErrors.company)}
       </div>
 
       {/* Join Date field */}
@@ -221,13 +226,13 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
                 field.onChange(date ? date.toISOString().split('T')[0] : '');
               }}
               dateFormat="dd/mm/yy"
-              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.joinDate ? 'p-invalid' : ''}`}
+              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.joinDate || formErrors.joinDate ? 'p-invalid' : ''}`}
               showIcon
               maxDate={new Date()}
             />
           )}
         />
-        {renderError(errors.joinDate)}
+        {renderError(errors.joinDate, formErrors.joinDate)}
       </div>
 
       {/* Salary field */}
@@ -241,7 +246,7 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
               id="salary"
               value={field.value}
               onValueChange={(e) => field.onChange(e.value)}
-              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.salary ? 'p-invalid' : ''}`}
+              className={`w-full h-11 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-gray-200 ${errors.salary || formErrors.salary ? 'p-invalid' : ''}`}
               mode="currency"
               currency="INR"
               locale="en-IN"
@@ -249,7 +254,7 @@ const UnifiedEmployeeForm: React.FC<UnifiedEmployeeFormProps> = ({
             />
           )}
         />
-        {renderError(errors.salary)}
+        {renderError(errors.salary, formErrors.salary)}
       </div>
 
       {/* Form buttons */}

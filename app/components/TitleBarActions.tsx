@@ -5,6 +5,7 @@ import { Badge } from 'primereact/badge';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { Dialog } from 'primereact/dialog';
+import { EmployeeFormData } from '../schema/employeeSchema';
 
 interface TitleBarActionsProps {
   handleFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -13,8 +14,7 @@ interface TitleBarActionsProps {
   searchPlaceholder?: string;
   roles?: string[];  // Add roles here
   companies?: string[];  // Add companies here
-  FormComponent: React.FC<any>;  // Accept the form component as a prop
-  onCreate: (data: any) => void;
+  FormComponent: React.FC<{ onSubmit: (data: EmployeeFormData) => void, onCancel: () => void, roles?: string[], companies?: string[] }>; onCreate: (data: EmployeeFormData) => void
 }
 
 const TitleBarActions: React.FC<TitleBarActionsProps> = ({
@@ -35,7 +35,7 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
     </div>
   );
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: EmployeeFormData) => {
     onCreate(data); // Pass form data to onCreate
     setVisible(false); // Close dialog after submitting
   };
@@ -80,12 +80,11 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
         onHide={() => setVisible(false)}
       >
         {/* Pass the form component to render */}
-        <FormComponent  
-        onSubmit={handleSubmit} 
-        resetForm={() => setVisible(false)} 
-        errors={null}
-        roles={roles}  // Ensure these are passed
-        companies={companies}  // Ensure these are passed
+        <FormComponent
+          onSubmit={handleSubmit}
+          onCancel={() => setVisible(false)}
+          roles={roles}  // Ensure these are passed
+          companies={companies}  // Ensure these are passed
         />
       </Dialog>
     </div>
