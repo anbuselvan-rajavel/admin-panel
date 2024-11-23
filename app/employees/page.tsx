@@ -133,7 +133,7 @@ const Employees = () => {
         life: 3000
       });
     }
-  }, []);
+  }, [pagination.limit]);
 
   // Memoized values
   const activeFilterCount = useMemo(() => {
@@ -174,7 +174,7 @@ const Employees = () => {
 
   useEffect(() => {
     fetchEmployees();
-  }, [fetchEmployees]);
+  }, [fetchEmployees, refreshTrigger]);
 
   // Event handlers
   const handlePageChange = (event: PaginatorPageChangeEvent) => {
@@ -218,7 +218,7 @@ const Employees = () => {
     }
   };
 
-  const handleDelete = (employeeId: number) => {
+  const handleDelete = useCallback((employeeId: number) => {
     confirmDialog({
       message: 'Do you want to delete this employee?',
       header: 'Delete Confirmation',
@@ -249,8 +249,8 @@ const Employees = () => {
         }
       }
     });
-  };
-
+  }, [fetchEmployees, fetchCompaniesAndRoles]);
+  
   const handleEdit = useCallback((employee: Employee) => {
     try {
       // Ensure that joinDate is in the correct format for the calendar component
