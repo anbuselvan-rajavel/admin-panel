@@ -6,7 +6,7 @@ import { Column } from "primereact/column";
 import { Paginator } from "primereact/paginator";
 import { Skeleton } from "primereact/skeleton";
 import { Tag } from "primereact/tag";
-import UserTitle from "./title";
+import UserTitle from "./Title";
 
 
 
