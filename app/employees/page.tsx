@@ -133,7 +133,7 @@ const Employees = () => {
         life: 3000
       });
     }
-  }, [pagination.limit]);
+  }, []);
 
   // Memoized values
   const activeFilterCount = useMemo(() => {
@@ -165,7 +165,7 @@ const Employees = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.currentPage, pagination.limit, filters, refreshTrigger]);
+  }, [pagination.currentPage, pagination.limit, filters]);
 
   // Initial fetch of companies and roles
   useEffect(() => {
@@ -239,6 +239,7 @@ const Employees = () => {
           });
         } catch (error) {
           setError('Error deleting employee');
+          console.error(error);
           toast.current?.show({
             severity: 'error',
             summary: 'Error',
@@ -286,7 +287,7 @@ const Employees = () => {
         <RiDeleteBin6Line className="text-red-500 w-4 h-4" />
       </button>
     </div>
-  ), [handleEdit]);
+  ), [handleEdit, handleDelete]);
 
   if (error) {
     return <p className="text-red-500 mb-4">{error}</p>;

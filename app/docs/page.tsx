@@ -1,6 +1,4 @@
-// app/docs/page.tsx
 'use client';
-
 import { useEffect } from 'react';
 import SwaggerUI from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
@@ -9,9 +7,9 @@ export default function ApiDoc() {
   useEffect(() => {
     const mutationObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node: any) => {
-          if (node.tagName === 'FORM') {
-            node.addEventListener('submit', (e: Event) => {
+        mutation.addedNodes.forEach((node) => {
+          if ((node as HTMLElement).tagName === 'FORM') {
+            (node as HTMLFormElement).addEventListener('submit', (e: Event) => {
               e.preventDefault();
             });
           }
