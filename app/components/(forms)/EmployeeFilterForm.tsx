@@ -3,7 +3,8 @@ import { Control, FieldErrors, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
-import { EmployeeFilterFormValues } from '@/app/schema/filterFormSchema';
+import { EmployeeFilterFormValues } from 'app/schema/filterFormSchema';
+
 
 
 interface EmployeeFilterFormProps {
