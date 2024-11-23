@@ -8,13 +8,25 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { EmployeeFormData, employeeSchema } from '@/app/schema/employeeSchema';
-import { Employee } from '@/types/employee';
+
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { ZodError } from 'zod';
+import { EmployeeFormData, employeeSchema } from 'app/schema/employeeSchema';
 
 // More specific type for errors
 type FormErrors = Partial<Record<keyof EmployeeFormData, { message: string }>>;
+
+interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  company: string;
+  joinDate: string;
+  salary: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface UnifiedEmployeeFormProps {
   mode?: 'create' | 'edit';
