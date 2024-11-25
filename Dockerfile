@@ -56,4 +56,5 @@ EXPOSE 3000
 
 # Start the application
 ENV PORT 3000
+RUN npx prisma generate
 CMD ["node", "server.js"]
