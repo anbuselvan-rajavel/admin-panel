@@ -7,7 +7,6 @@ import { UserFilterFormValues } from 'app/schema/filterFormSchema';
 
 interface UserFilterFormProps {
   onSubmit: () => void;
-  onReset: () => void;
   control: Control<UserFilterFormValues>;
   errors: FieldErrors<UserFilterFormValues>;
   filterOptions: {
@@ -18,15 +17,16 @@ interface UserFilterFormProps {
 
 const UserFilterForm: React.FC<UserFilterFormProps> = ({
   onSubmit,
-  onReset,
   control,
   errors,
   filterOptions,
 }) => {
+  // Helper function to safely get error message 
+  const getErrorMessage = (fieldError: FieldErrors<UserFilterFormValues>[keyof UserFilterFormValues]): string => { if (typeof fieldError?.message === 'string') { return fieldError.message; } return ''; };
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <label htmlFor="name" className='block text-sm font-medium'>Name</label>
+        <label htmlFor="name">Name</label>
         <Controller
           name="name"
           control={control}
@@ -34,56 +34,47 @@ const UserFilterForm: React.FC<UserFilterFormProps> = ({
             <InputText
               id="name"
               {...field}
-              className='w-full h-15 p-3 border-2 border-violet-500 focus:outline-none focus:shadow-none'
+              className={`w-full h-15 p-3 border-2 border-violet-500 focus:outline-none focus:shadow-none ${errors.name ? 'p-invalid' : ''}`}
               placeholder='Filter by name...'
             />
-          )}
+          )
+          }
         />
-        {errors.name && (
-          <small className="text-red-500">{errors.name.message}</small>
-        )}
+        {errors.name && (<small className="text-red-500"> {getErrorMessage(errors.name)} </small>)}
       </div>
-
       <div className="flex flex-col gap-2">
-        <label htmlFor="status" className='block text-sm font-medium'>Status</label>
+        <label htmlFor="status">Status</label>
         <Controller
           name="status"
           control={control}
           render={({ field }) => (
             <Dropdown
-              id={field.name}
+              id="status"
               value={field.value}
               onChange={field.onChange}
-              options={filterOptions.status}
-              className='w-full border-2 border-violet-500 custom-boxShadow'
-              placeholder='Select Status'
+              options={['All', ...filterOptions.status]}
+              className={`w-full border-2 border-violet-500 custom-boxShadow ${errors.status ? 'p-invalid' : ''}`}
             />
           )}
         />
-        {errors.status && (
-          <small className="text-red-500">{errors.status.message}</small>
-        )}
+        {errors.status && (<small className="text-red-500"> {getErrorMessage(errors.status)} </small>)}
       </div>
-
       <div className="flex flex-col gap-2">
-        <label htmlFor="gender" className='block text-sm font-medium'>Gender</label>
+        <label htmlFor="gender">Gender</label>
         <Controller
           name="gender"
           control={control}
           render={({ field }) => (
             <Dropdown
-              id={field.name}
+              id="gender"
               value={field.value}
               onChange={field.onChange}
-              options={filterOptions.gender}
-              className='w-full border-2 border-violet-500 custom-boxShadow'
-              placeholder='Select Gender'
+              options={['All', ...filterOptions.gender]}
+              className={`w-full border-2 border-violet-500 custom-boxShadow ${errors.gender ? 'p-invalid' : ''}`}
             />
           )}
         />
-        {errors.gender && (
-          <small className="text-red-500">{errors.gender.message}</small>
-        )}
+        {errors.gender && (<small className="text-red-500"> {getErrorMessage(errors.gender)} </small>)}
       </div>
     </form>
   );
