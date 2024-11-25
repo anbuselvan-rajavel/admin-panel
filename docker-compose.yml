@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - DATABASE_URL="postgresql://postgres:password@localhost:5432/testdb
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/testdb
     depends_on:
       - postgres
     restart: always
@@ -20,7 +20,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   nginx:
     image: nginx:alpine
