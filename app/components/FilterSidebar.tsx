@@ -1,26 +1,31 @@
-// FilterSidebar.tsx
 import React from 'react';
 import { Sidebar } from 'primereact/sidebar';
-import { Button } from 'primereact/button';
 import { Control, FieldErrors } from 'react-hook-form';
+import { Button } from 'primereact/button';
 
-// Make the filter options type generic
-export interface FilterOptions {
-  [key: string]: string[];
+interface FilterOptions {
+  role: string[];
+  company: string[];
 }
 
-export interface FilterSidebarProps {
+interface FilterSidebarProps<T> {
   visible: boolean;
   onHide: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: () => void;
   onReset: () => void;
-  control: Control<any>;
-  errors: FieldErrors<any>;
-  CustomFilterForm: React.FC<any>;
+  control: Control<T>;
+  errors: FieldErrors<T>;
+  CustomFilterForm: React.ComponentType<{
+    control: Control<T>;
+    errors: FieldErrors<T>;
+    filterOptions: FilterOptions;
+    onSubmit: () => void;
+    onReset: () => void;
+  }>;
   filterOptions: FilterOptions;
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({
+const FilterSidebar = <T,>({
   visible,
   onHide,
   onSubmit,
@@ -29,41 +34,39 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   errors,
   CustomFilterForm,
   filterOptions,
-}) => {
+}: FilterSidebarProps<T>) => {
   return (
     <Sidebar
       visible={visible}
-      position="right"
       onHide={onHide}
-      className="w-96"
+      className="p-sidebar-sm"
+      position='right'
     >
       <div className="flex flex-col h-full">
-        <div className="flex-grow">
-          <h2 className="text-2xl font-bold mb-4">Filters</h2>
-          <form onSubmit={onSubmit}>
-            <CustomFilterForm
-              control={control}
-              errors={errors}
-              filterOptions={filterOptions}
-            />
-          </form>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Filters</h2>
         </div>
-        <div className="flex row justify-around gap-2 mt-4">
+        <div className="flex-grow">
+          <CustomFilterForm
+            control={control}
+            errors={errors}
+            filterOptions={filterOptions}
+            onSubmit={onSubmit}
+            onReset={onReset}
+          />
+        </div>
+        <div className="flex justify-between">
           <Button
             label="Reset"
-            severity="secondary"
+            icon="pi pi-refresh"
             onClick={onReset}
-            type="button"
-            className='bg-red-500 w-full h-12 p-3 text-white flex justify-center items-center'
-            icon="pi pi-times"
+            className="bg-red-500 h-12 p-2 w-32"
           />
           <Button
             label="Apply"
-            severity="success"
-            onClick={onSubmit}
-            type="submit"
-            className="bg-green-500 w-full h-12 p-3 text-white flex justify-center items-center"
             icon="pi pi-check"
+            onClick={onSubmit}
+            className="bg-green-500 h-12 p-2 w-32"
           />
         </div>
       </div>

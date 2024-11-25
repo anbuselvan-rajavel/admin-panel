@@ -1,4 +1,3 @@
-// title.tsx
 import React, { useMemo, useState } from 'react';
 import TitleBarActions from '../components/TitleBarActions';
 import FilterSidebar from '../components/FilterSidebar';
@@ -9,6 +8,11 @@ import EmployeeFilterForm from '../components/(forms)/EmployeeFilterForm';
 import axios from 'axios';
 import { EmployeeFormData } from '../schema/employeeSchema';
 import UnifiedEmployeeForm from '../components/(forms)/UnifiedEmployeeForm';
+
+interface FilterOptions {
+  role: string[];
+  company: string[];
+  }
 
 interface TitleProps {
   onFilter: (filterText: string) => void;
@@ -43,7 +47,7 @@ const Title: React.FC<TitleProps> = ({
 }) => {
   const [visibleRight, setVisibleRight] = useState(false);
 
-  const filterOptions = useMemo(
+  const filterOptions: FilterOptions = useMemo(
     () => ({
       role: roles,
       company: companies,

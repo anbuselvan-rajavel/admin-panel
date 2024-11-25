@@ -2,14 +2,19 @@ import React from 'react';
 import { Control, FieldErrors, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { FilterOptions } from '../FilterSidebar';
 
+// Define the filter options interface
+interface FilterOptions {
+  role: string[];
+  company: string[];
+  
+}
 
 // Define the form values interface
 interface EmployeeFilterValues {
-  name: string;
-  role: string;
-  company: string;
+  name?: string;
+  role?: string;
+  company?: string;
 }
 
 interface EmployeeFilterFormProps {
@@ -24,7 +29,7 @@ const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
   filterOptions,
 }) => {
   // Helper function to safely get error message
-  const getErrorMessage = (fieldError: any): string => {
+  const getErrorMessage = (fieldError: FieldErrors<EmployeeFilterValues>[keyof EmployeeFilterValues]): string => {
     if (typeof fieldError?.message === 'string') {
       return fieldError.message;
     }
@@ -39,9 +44,9 @@ const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
           name="name"
           control={control}
           render={({ field }) => (
-            <InputText 
-              id="name" 
-              {...field} 
+            <InputText
+              id="name"
+              {...field}
               className={`w-full h-15 p-3 border-2 border-violet-500 focus:outline-none focus:shadow-none ${errors.name ? 'p-invalid' : ''}`}
               placeholder='Filter by name...'
             />
