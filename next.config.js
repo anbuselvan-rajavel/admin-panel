@@ -1,14 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
   reactStrictMode: true,
-  transpilePackages: ['swagger-ui-react'],
   output: 'standalone',
+  transpilePackages: ['swagger-ui-react'],
   webpack: (config) => {
-    config.resolve.fallback = { fs: false };
+    config.resolve.fallback = {
+      fs: false,
+      net: false,
+      tls: false,
+    };
     return config;
   },
-  
-  };
+  experimental: {
+    serverActions: true,
+  }
+};
 
 module.exports = nextConfig;
