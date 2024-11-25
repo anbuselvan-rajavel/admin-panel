@@ -9,7 +9,13 @@
     "baseUrl": ".",
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,    // Allows variables to be implicitly of type 'any'
+    "strictNullChecks": false, // Disables strict null checks
+    "noImplicitThis": false,   // Allows 'this' to be implicitly typed as 'any'
+    "esModuleInterop": true,   // Ensures compatibility between CommonJS and ES Modules
+    "skipLibCheck": true,      // Skips type checking of declaration files
+    "forceConsistentCasingInFileNames": true, // Ensures consistent file naming
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",

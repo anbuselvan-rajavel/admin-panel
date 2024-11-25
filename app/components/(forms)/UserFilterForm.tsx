@@ -2,8 +2,7 @@ import React from 'react';
 import { Control, FieldErrors, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
-import { UserFilterFormValues } from '@/app/schema/filterFormSchema';
+import { UserFilterFormValues } from 'app/schema/filterFormSchema';
 
 
 interface UserFilterFormProps {
@@ -85,21 +84,6 @@ const UserFilterForm: React.FC<UserFilterFormProps> = ({
         {errors.gender && (
           <small className="text-red-500">{errors.gender.message}</small>
         )}
-      </div>
-
-      <div className="flex row justify-around mt-6">
-        <Button
-          label="Reset"
-          onClick={onReset}
-          className="bg-red-500 w-24 h-12 p-3 text-white flex justify-center items-center"
-          icon="pi pi-times"
-        />
-        <Button
-          type="submit"
-          label="Apply"
-          className="bg-green-500 w-24 h-12 p-3 text-white flex justify-center items-center"
-          icon="pi pi-check"
-        />
       </div>
     </form>
   );

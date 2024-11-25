@@ -1,26 +1,23 @@
+// FilterSidebar.tsx
 import React from 'react';
 import { Sidebar } from 'primereact/sidebar';
-import { Control, FieldErrors } from 'react-hook-form';
-import { UserFilterFormValues } from '../schema/filterFormSchema';
 import { Button } from 'primereact/button';
+import { Control, FieldErrors } from 'react-hook-form';
 
-interface FilterSidebarProps {
+// Make the filter options type generic
+export interface FilterOptions {
+  [key: string]: string[];
+}
+
+export interface FilterSidebarProps {
   visible: boolean;
   onHide: () => void;
-  onSubmit: () => void;
+  onSubmit: (e: React.FormEvent) => void;
   onReset: () => void;
-  control: Control<UserFilterFormValues>;
-  errors: FieldErrors<UserFilterFormValues>;
-  CustomFilterForm: React.ComponentType<{
-    control: Control<UserFilterFormValues>;
-    errors: FieldErrors<UserFilterFormValues>;
-    filterOptions: { status: string[]; gender: string[]; };
-    onSubmit: () => void;
-    onReset: () => void;
-  }>;
-  filterOptions: {
-    status: string[]; gender: string[];
-  };
+  control: Control<any>;
+  errors: FieldErrors<any>;
+  CustomFilterForm: React.FC<any>;
+  filterOptions: FilterOptions;
 }
 
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
@@ -34,21 +31,40 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   filterOptions,
 }) => {
   return (
-    <Sidebar visible={visible} onHide={onHide} className="p-sidebar-sm">
+    <Sidebar
+      visible={visible}
+      position="right"
+      onHide={onHide}
+      className="w-96"
+    >
       <div className="flex flex-col h-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Filters</h2>
+        <div className="flex-grow">
+          <h2 className="text-2xl font-bold mb-4">Filters</h2>
+          <form onSubmit={onSubmit}>
+            <CustomFilterForm
+              control={control}
+              errors={errors}
+              filterOptions={filterOptions}
+            />
+          </form>
         </div>
-        <CustomFilterForm 
-        control={control} 
-        errors={errors} 
-        filterOptions={filterOptions}
-        onSubmit={onSubmit} 
-        onReset={onReset}
-         />
-        <div className="flex justify-end mt-4">
-          <Button label="Reset" icon="pi pi-refresh" onClick={onReset} />
-          <Button label="Apply" icon="pi pi-check" onClick={onSubmit} />
+        <div className="flex row justify-around gap-2 mt-4">
+          <Button
+            label="Reset"
+            severity="secondary"
+            onClick={onReset}
+            type="button"
+            className='bg-red-500 w-full h-12 p-3 text-white flex justify-center items-center'
+            icon="pi pi-times"
+          />
+          <Button
+            label="Apply"
+            severity="success"
+            onClick={onSubmit}
+            type="submit"
+            className="bg-green-500 w-full h-12 p-3 text-white flex justify-center items-center"
+            icon="pi pi-check"
+          />
         </div>
       </div>
     </Sidebar>
