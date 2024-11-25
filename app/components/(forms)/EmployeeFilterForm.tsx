@@ -2,22 +2,26 @@ import React from 'react';
 import { Control, FieldErrors, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { EmployeeFilterFormValues } from 'app/schema/filterFormSchema';
 
-// Define the form values interface
-interface EmployeeFilterValues {
-  name?: string;
-  role?: string;
-  company?: string;
-}
 
 interface EmployeeFilterFormProps {
-  onSubmit: () => void;
-  control: Control<EmployeeFilterValues>;
-  errors: FieldErrors<EmployeeFilterValues>;
+  control: Control<{
+    name?: string;
+    role?: string;
+    company?: string;
+  }>;
+  errors: FieldErrors<{
+    name?: string;
+    role?: string;
+    company?: string;
+  }>;
   filterOptions: {
-    role: string[];
-    company: string[];
-  }
+    role: string[]; // Must be required
+    company: string[]; // Must be required
+  };
+  onSubmit: () => void;
+  onReset: () => void;
 }
 
 const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
@@ -27,7 +31,7 @@ const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
   filterOptions,
 }) => {
   // Helper function to safely get error message
-  const getErrorMessage = (fieldError: FieldErrors<EmployeeFilterValues>[keyof EmployeeFilterValues]): string => {
+  const getErrorMessage = (fieldError: FieldErrors<EmployeeFilterFormValues>[keyof EmployeeFilterFormValues]): string => {
     if (typeof fieldError?.message === 'string') {
       return fieldError.message;
     }

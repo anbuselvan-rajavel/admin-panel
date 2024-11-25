@@ -8,6 +8,11 @@ import { UserFilterFormValues, userFilterSchema } from '../schema/filterFormSche
 import UserFilterForm from '../components/(forms)/UserFilterForm';
 import UserCreateForm from '../components/(forms)/UserCreateForm';
 
+interface UserFilterOptions {
+  status: string[];
+  gender: string[];
+}
+
 interface TitleProps {
   onFilter: (filterText: string) => void;
   onApplyFilters: (nameFilter: string, statusFilter: string | undefined, genderFilter: string | undefined) => void;
@@ -36,7 +41,7 @@ const UserTitle: React.FC<TitleProps> = ({
   const [visibleRight, setVisibleRight] = useState(false);
 
   // Create filterOptions object using the props
-  const filterOptions = useMemo(() => ({
+  const userFilterOptions: UserFilterOptions = useMemo(() => ({
     status: statuses,
     gender: genders
   }), [statuses, genders]);
@@ -117,7 +122,7 @@ const UserTitle: React.FC<TitleProps> = ({
         control={control}
         errors={errors}
         CustomFilterForm={UserFilterForm}
-        filterOptions={filterOptions}
+        filterOptions={userFilterOptions}
       />
     </div>
   );

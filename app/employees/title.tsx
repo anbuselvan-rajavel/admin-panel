@@ -9,7 +9,7 @@ import axios from 'axios';
 import { EmployeeFormData } from '../schema/employeeSchema';
 import UnifiedEmployeeForm from '../components/(forms)/UnifiedEmployeeForm';
 
-interface FilterOptions {
+interface EmployeeFilterOptions {
   role: string[];
   company: string[];
   }
@@ -47,7 +47,7 @@ const Title: React.FC<TitleProps> = ({
 }) => {
   const [visibleRight, setVisibleRight] = useState(false);
 
-  const filterOptions: FilterOptions = useMemo(
+  const employeeFilterOptions: EmployeeFilterOptions = useMemo(
     () => ({
       role: roles,
       company: companies,
@@ -130,7 +130,7 @@ const Title: React.FC<TitleProps> = ({
         control={control}
         errors={errors}
         CustomFilterForm={EmployeeFilterForm}
-        filterOptions={filterOptions}
+        filterOptions={employeeFilterOptions}
       />
     </div>
   );

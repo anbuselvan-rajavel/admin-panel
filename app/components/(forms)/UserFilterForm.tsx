@@ -6,13 +6,22 @@ import { UserFilterFormValues } from 'app/schema/filterFormSchema';
 
 
 interface UserFilterFormProps {
-  onSubmit: () => void;
-  control: Control<UserFilterFormValues>;
-  errors: FieldErrors<UserFilterFormValues>;
+  control: Control<{
+    name?: string;
+    status?: string;
+    gender?: string;
+  }>;
+  errors: FieldErrors<{
+    name?: string;
+    status?: string;
+    gender?: string;
+  }>;
   filterOptions: {
-    status: string[];
-    gender: string[];
+    status: string[]; // Must be required
+    gender: string[]; // Must be required
   };
+  onSubmit: () => void;
+  onReset: () => void;
 }
 
 const UserFilterForm: React.FC<UserFilterFormProps> = ({

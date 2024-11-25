@@ -4,8 +4,10 @@ import { Control, FieldErrors } from 'react-hook-form';
 import { Button } from 'primereact/button';
 
 interface FilterOptions {
-  role: string[];
-  company: string[];
+  status?: string[];
+  gender?: string[];
+  role?: string[];
+  company?: string[];
 }
 
 interface FilterSidebarProps<T> {
