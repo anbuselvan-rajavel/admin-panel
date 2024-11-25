@@ -6,12 +6,12 @@ services:
     environment:
       - DATABASE_URL="postgresql://postgres:password@localhost:5432/testdb
     depends_on:
-      - db
+      - postgres
     restart: always
     ports:
       - "3000:3000"
 
-  db:
+  postgres:
     image: postgres:15
     environment:
       - POSTGRES_USER=postgres
