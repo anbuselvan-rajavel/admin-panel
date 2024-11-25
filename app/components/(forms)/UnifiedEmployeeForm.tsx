@@ -30,7 +30,7 @@ interface Employee {
 
 interface UnifiedEmployeeFormProps {
   mode?: 'create' | 'edit';
-  onSubmit: (data: EmployeeFormData) => Promise<void>;
+  onSubmit: (data: EmployeeFormData) => void;
   onCancel?: () => void;
   onHide?: () => void; 
   initialData?: Employee | null;

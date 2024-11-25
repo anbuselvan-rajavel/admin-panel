@@ -1,3 +1,4 @@
+// titleBarActions.tsx
 import React, { useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
@@ -7,14 +8,22 @@ import { InputIcon } from 'primereact/inputicon';
 import { Dialog } from 'primereact/dialog';
 import { EmployeeFormData } from '../schema/employeeSchema';
 
+interface EmployeeFormComponentProps {
+  onSubmit: (data: EmployeeFormData) => void;
+  onCancel: (() => void) | null | undefined;
+  roles?: string[];
+  companies?: string[];
+}
+
 interface TitleBarActionsProps {
   handleFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setVisibleRight: (value: boolean) => void;
   activeFilterCount?: number;
   searchPlaceholder?: string;
-  roles?: string[];  // Add roles here
-  companies?: string[];  // Add companies here
-  FormComponent: React.FC<{ onSubmit: (data: EmployeeFormData) => void, onCancel: () => void, roles?: string[], companies?: string[] }>; onCreate: (data: EmployeeFormData) => void
+  roles?: string[];
+  companies?: string[];
+  FormComponent: React.FC<EmployeeFormComponentProps>;
+  onCreate: (data: EmployeeFormData) => Promise<void>;
 }
 
 const TitleBarActions: React.FC<TitleBarActionsProps> = ({
@@ -29,15 +38,9 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
 }) => {
   const [visible, setVisible] = useState(false);
 
-  const headerElement = (
-    <div className="text-center">
-      <span className="font-bold white-space-nowrap">Create New</span>
-    </div>
-  );
-
-  const handleSubmit = (data: EmployeeFormData) => {
-    onCreate(data); // Pass form data to onCreate
-    setVisible(false); // Close dialog after submitting
+  const handleSubmit = async (data: EmployeeFormData) => {
+    await onCreate(data);
+    setVisible(false);
   };
 
   return (
@@ -70,21 +73,20 @@ const TitleBarActions: React.FC<TitleBarActionsProps> = ({
         className="border-none bg-violet-400 h-12 p-5 text-slate-50"
         severity="help"
         label="Create"
-        onClick={() => setVisible(true)} // Open the Create Form Dialog
+        onClick={() => setVisible(true)}
       />
       <Dialog
         visible={visible}
         modal
-        header={headerElement}
+        header="Create New"
         style={{ width: '50rem' }}
         onHide={() => setVisible(false)}
       >
-        {/* Pass the form component to render */}
         <FormComponent
           onSubmit={handleSubmit}
           onCancel={() => setVisible(false)}
-          roles={roles}  // Ensure these are passed
-          companies={companies}  // Ensure these are passed
+          roles={roles}
+          companies={companies}
         />
       </Dialog>
     </div>

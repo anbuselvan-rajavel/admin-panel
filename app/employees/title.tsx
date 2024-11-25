@@ -1,3 +1,4 @@
+// title.tsx
 import React, { useMemo, useState } from 'react';
 import TitleBarActions from '../components/TitleBarActions';
 import FilterSidebar from '../components/FilterSidebar';
@@ -18,9 +19,13 @@ interface TitleProps {
   onRoleFilter: (role: string | undefined) => void;
   onCompanyFilter: (company: string | undefined) => void;
   onResetFilters: () => void;
-  onApplyFilters: (nameFilter: string, roleFilter: string | undefined, companyFilter: string | undefined) => void;
+  onApplyFilters: (
+    nameFilter: string,
+    roleFilter: string | undefined,
+    companyFilter: string | undefined
+  ) => void;
   activeFilterCount: number;
-  onRefreshEmployees: () => void; // Add this prop for refreshing employees list
+  onRefreshEmployees: () => void;
 }
 
 const Title: React.FC<TitleProps> = ({
@@ -38,21 +43,29 @@ const Title: React.FC<TitleProps> = ({
 }) => {
   const [visibleRight, setVisibleRight] = useState(false);
 
-  const filterOptions = useMemo(() => ({
-    role: roles,
-    company: companies,
-  }), [roles, companies]);
+  const filterOptions = useMemo(
+    () => ({
+      role: roles,
+      company: companies,
+    }),
+    [roles, companies]
+  );
 
   const defaultRole = selectedRole ?? 'All';
   const defaultCompany = selectedCompany ?? 'All';
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<EmployeeFilterFormValues>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<EmployeeFilterFormValues>({
     resolver: zodResolver(employeeFilterSchema),
     defaultValues: {
       name: '',
       role: defaultRole,
       company: defaultCompany,
-    }
+    },
   });
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +92,7 @@ const Title: React.FC<TitleProps> = ({
   const handleCreateEmployee = async (data: EmployeeFormData) => {
     try {
       await axios.post('http://localhost:3000/api/employees', data);
-      onRefreshEmployees(); // Trigger refetch of employee data after creation
+      onRefreshEmployees();
     } catch (error) {
       console.error('Error creating employee:', error);
     }
