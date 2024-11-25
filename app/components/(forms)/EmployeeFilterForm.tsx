@@ -3,13 +3,6 @@ import { Control, FieldErrors, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
-// Define the filter options interface
-interface FilterOptions {
-  role: string[];
-  company: string[];
-  
-}
-
 // Define the form values interface
 interface EmployeeFilterValues {
   name?: string;
@@ -18,12 +11,17 @@ interface EmployeeFilterValues {
 }
 
 interface EmployeeFilterFormProps {
+  onSubmit: () => void;
   control: Control<EmployeeFilterValues>;
   errors: FieldErrors<EmployeeFilterValues>;
-  filterOptions: FilterOptions;
+  filterOptions: {
+    role: string[];
+    company: string[];
+  }
 }
 
 const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
+  onSubmit,
   control,
   errors,
   filterOptions,
@@ -37,7 +35,7 @@ const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <label htmlFor="name">Name</label>
         <Controller
@@ -102,7 +100,7 @@ const EmployeeFilterForm: React.FC<EmployeeFilterFormProps> = ({
           </small>
         )}
       </div>
-    </div>
+    </form>
   );
 };
 
