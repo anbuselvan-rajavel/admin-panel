@@ -1,5 +1,10 @@
 node_modules
-.next
+npm-debug.log
+Dockerfile
+.dockerignore
 .git
-# Docker volumes
-postgres_data/
+.gitignore
+README.md
+.next
+.env*.local
+/prisma/migrations
