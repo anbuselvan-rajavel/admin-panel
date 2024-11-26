@@ -58,6 +58,5 @@ USER nextjs
 
 EXPOSE 3000
 
-# Start the application
-ENV PORT 3000
+# Start the application with migration
 CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
