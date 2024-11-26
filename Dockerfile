@@ -21,7 +21,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the application
+# Ensure next.config.js is configured for standalone output
+RUN npx prisma generate
 RUN npm run build
 
 # Runner stage
@@ -37,8 +38,14 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
+
+# Install production dependencies
+RUN npm ci --only=production
+
+# Ensure Prisma client is generated in the runner stage
+RUN npx prisma generate
 
 # Switch to non-root user
 USER nextjs
