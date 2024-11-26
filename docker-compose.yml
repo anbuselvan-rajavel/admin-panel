@@ -1,27 +1,33 @@
 services:
   nextjs:
-    build: 
-      context: . # Ensure this points to the admin-panel directory
+    build:
+      context: .
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/testdb?schema=public
-      - NODE_ENV=production
     depends_on:
-      - postgres
-    volumes:
-      - ./:/app  # Mount current directory to /app in container
+      postgres:
+        condition: service_healthy
+    restart: always
+    ports:
+      - "3000:3000"
 
   postgres:
-    image: postgres:15-alpine
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+    image: postgres:15
     environment:
-      - POSTGRES_DB=testdb
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=testdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5434:5432"  # Changed from 5432:5432 to 5434:5432
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
 
 volumes:
-  postgres-data:
+  postgres_data:

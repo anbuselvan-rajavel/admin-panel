@@ -1,60 +1,60 @@
-FROM node:20-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Copy package files and prisma folder
-COPY package.json package-lock.json* ./ 
-COPY prisma ./prisma
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
 
 # Install dependencies
 RUN npm ci
-
-# Generate Prisma client
 RUN npx prisma generate
 
-# Builder stage
-FROM base AS builder
+# Stage 2: Builder
+FROM node:18-alpine AS builder
 WORKDIR /app
+
+# Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy source
 COPY . .
 
-# Ensure next.config.js is configured for standalone output
-RUN npx prisma generate
-RUN npm run build
-
-# Runner stage
-FROM base AS runner
-WORKDIR /app
-
+# Set environment variables
+ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 
+# Build
+RUN npm run build
+
+# Stage 3: Runner
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Set environment variables
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Create non-root user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy built resources
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy necessary files
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# Install production dependencies
-RUN npm ci --only=production
-
-# Ensure Prisma client is generated in the runner stage
-RUN npx prisma generate
+# Set permissions
+RUN chown -R nextjs:nodejs /app
 
 # Switch to non-root user
 USER nextjs
 
-# Expose the port the app runs on
 EXPOSE 3000
 
-# Set environment variables
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-
 # Start the application
-CMD ["node", "./server.js"]
+ENV PORT 3000
+RUN npx prisma generate
+CMD ["node", "server.js"]
