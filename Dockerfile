@@ -5,18 +5,21 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies
+# Copy package files and prisma folder
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma
+
+# Install dependencies
 RUN npm ci
+
+# Generate Prisma client
+RUN npx prisma generate
 
 # Builder stage
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Generate Prisma client
-RUN npx prisma generate
 
 # Build the application
 RUN npm run build
@@ -39,7 +42,7 @@ COPY --from=builder /app/prisma ./prisma
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh ./
-RUN dos2unix docker-entrypoint.sh && chmod +x docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 
