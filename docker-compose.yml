@@ -3,7 +3,7 @@ version: '3.8'
 services:
   nextjs:
     build: 
-      context: .
+      context: . # Ensure this points to the admin-panel directory
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -12,16 +12,18 @@ services:
       - NODE_ENV=production
     depends_on:
       - postgres
+    volumes:
+      - ./:/app  # Mount current directory to /app in container
 
   postgres:
     image: postgres:15-alpine
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=adminpanel
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=testdb
+      - POSTGRES_PASSWORD=password  # Match this with your connection string
     ports:
       - "5432:5432"
 
 volumes:
-  postgres-data:  
+  postgres-data:
