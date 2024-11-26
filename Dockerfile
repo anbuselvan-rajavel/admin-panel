@@ -1,3 +1,5 @@
+# Dockerfile
+
 # Stage 1: Dependencies
 FROM node:18-alpine AS deps
 WORKDIR /app
@@ -58,4 +60,4 @@ EXPOSE 3000
 
 # Start the application
 ENV PORT 3000
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
