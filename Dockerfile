@@ -1,5 +1,3 @@
-# Dockerfile
-
 # Stage 1: Dependencies
 FROM node:18-alpine AS deps
 WORKDIR /app
@@ -19,17 +17,10 @@ WORKDIR /app
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy source code and build the application
 COPY . .
-
-# Set environment variables
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
-
-# Generate Prisma client and run migrations
-RUN npx prisma generate
-RUN npx prisma migrate deploy
-
-# Build
 RUN npm run build
 
 # Stage 3: Runner
@@ -49,13 +40,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules ./node_modules  
+COPY --from=builder /app/node_modules ./node_modules
 
-# Set permissions
+# Set permissions and switch to non-root user
 RUN chown -R nextjs:nodejs /app
-
-# Switch to non-root user
 USER nextjs
 
 EXPOSE 3000
