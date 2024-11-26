@@ -1,20 +1,8 @@
 // /app/api/employees/route.ts
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 
 const prisma = new PrismaClient();
-
-// Exactly matching your frontend schema
-export const employeeSchema = z.object({
-    id: z.number().optional(), 
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email format"),
-    role: z.string().min(1, "Role is required"),
-    company: z.string().min(1, "Company is required"),
-    joinDate: z.string(), 
-    salary: z.number().min(0, "Salary must be positive")
-});
 
 /**
  * @swagger
@@ -44,11 +32,11 @@ export const employeeSchema = z.object({
  */
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const page = Number(url.searchParams.get('page')) || 1;
-  const limit = Number(url.searchParams.get('limit')) || 10;
+  const page = Number(url.searchParams.get('page')) || 1; // Default to page 1
+  const limit = Number(url.searchParams.get('limit')) || 10; // Default to 10 items per page
   const baseUrl = `${url.protocol}//${url.host}${url.pathname}`;
 
-  const skip = (page - 1) * limit;
+  const skip = (page - 1) * limit; // calculate the number of records to skip
 
   // Extract filter parameters from the query string
   const nameFilter = url.searchParams.get('name') || '';
@@ -56,41 +44,57 @@ export async function GET(req: Request) {
   const companyFilter = url.searchParams.get('company') || '';
 
   try {
-    // Check for invalid pagination parameters
-    if (page <= 0 || limit <= 0) {
-      return NextResponse.json({ 
-        error: 'Page and limit must be positive integers' 
-      }, { status: 400 });
-    }
-
-    // Get the employees with pagination and filters
-    const [employees, totalEmployees] = await Promise.all([
-      prisma.employee.findMany({
-        skip,
-        take: limit,
-        where: {
-          name: { contains: nameFilter, mode: 'insensitive' },
-          role: { contains: roleFilter, mode: 'insensitive' },
-          company: { contains: companyFilter, mode: 'insensitive' },
+    // Get the employees with pagination
+    const employees = await prisma.employee.findMany({
+      skip, // skip the first (page - 1) * limit records
+      take: limit, // limit the number of records to 'limit'
+      where: {
+        name: {
+          contains: nameFilter,
+          mode: 'insensitive',
         },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.employee.count({
-        where: {
-          name: { contains: nameFilter, mode: 'insensitive' },
-          role: { contains: roleFilter, mode: 'insensitive' },
-          company: { contains: companyFilter, mode: 'insensitive' },
+        role: {
+          contains: roleFilter,
+          mode: 'insensitive',
         },
-      })
-    ]);
+        company: {
+          contains: companyFilter,
+          mode: 'insensitive',
+        },
+      },
+      orderBy: {
+        createdAt: 'desc'  // Ensure the records are sorted by `createdAt` in descending order
+      },
+    });
 
+    // Get the total number of employees for pagination purposes
+    const totalEmployees = await prisma.employee.count({
+      where: {
+        name: {
+          contains: nameFilter,
+          mode: 'insensitive',
+        },
+        role: {
+          contains: roleFilter,
+          mode: 'insensitive',
+        },
+        company: {
+          contains: companyFilter,
+          mode: 'insensitive',
+        },
+      },
+    });
     const totalPages = Math.ceil(totalEmployees / limit);
 
-    // Format joinDate to string to match frontend schema
+    // Format joinDate to YYYY-MM-DD for each employee
     const formattedEmployees = employees.map((employee) => ({
       ...employee,
-      joinDate: employee.joinDate.toISOString().split('T')[0],
+      joinDate: employee.joinDate.toISOString().split('T')[0], // Remove the time part
     }));
+
+    if (page <= 0 || limit <= 0) {
+      return NextResponse.json({ error: 'Page and limit must be positive integers' }, { status: 400 });
+    }
 
     return NextResponse.json({
       meta: {
@@ -106,11 +110,8 @@ export async function GET(req: Request) {
       data: formattedEmployees,
     }, { status: 200 });
   } catch (error) {
-    console.error('Employee fetch error:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch employees', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
-    }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ error: 'Failed to fetch employees' }, { status: 500 });
   }
 }
 
