@@ -40,14 +40,15 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 
-# Copy entrypoint script
-COPY docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh
-
+# Switch to non-root user
 USER nextjs
 
+# Expose the port the app runs on
 EXPOSE 3000
 
+# Set environment variables
 ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
 
-CMD ["./docker-entrypoint.sh"]
+# Start the application
+CMD ["node", "server.js"]
