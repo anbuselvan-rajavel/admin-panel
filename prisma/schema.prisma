@@ -8,7 +8,7 @@ generator client {
 }
 
 model Employee {
-  id        String   @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   role      String

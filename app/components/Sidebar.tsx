@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import { Home, User, Settings, BriefcaseMedical, PanelRightClose, PanelLeftClose } from 'lucide-react';
+import { Home, User, Settings, BriefcaseMedical, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';  // Import usePathname
 
 const Sidebar = () => {
@@ -29,7 +29,7 @@ const Sidebar = () => {
             <div className="p-4 flex justify-between items-center">
                 {!isCollapsed && <h2 className="text-2xl font-bold"><span className='text-violet-500'>Admin</span> Panel</h2>}
                 <button onClick={toggleSidebar} className="focus:outline-none">
-                    {isCollapsed ? <PanelRightClose size={24} /> : <PanelLeftClose />}
+                    {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft />} 
                 </button>
             </div>
 
