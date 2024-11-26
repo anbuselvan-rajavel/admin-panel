@@ -1,43 +1,27 @@
+version: '3.8'
+
 services:
   nextjs:
-    build:
+    build: 
       context: .
       dockerfile: Dockerfile
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/testdb?schema=public
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: always
     ports:
       - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/testdb?schema=public
+      - NODE_ENV=production
+    depends_on:
+      - postgres
 
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=testdb
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - POSTGRES_DB=adminpanel
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: always
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - nextjs
-    restart: always
+      - "5432:5432"
 
 volumes:
-  postgres_data:
+  postgres-data:  
