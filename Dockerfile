@@ -6,7 +6,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files and prisma folder
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* ./ 
 COPY prisma ./prisma
 
 # Install dependencies
@@ -35,7 +35,6 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy built resources
-COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/package.json ./package.json
@@ -58,4 +57,4 @@ ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
 # Start the application
-CMD ["node", "server.js"]
+CMD ["node", "./server.js"]
