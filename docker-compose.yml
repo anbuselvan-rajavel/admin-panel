@@ -1,34 +1,40 @@
+version: '3.9'
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: testdb
+    ports:
+      - "5433:5432"  # Changed to avoid local port conflict
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   nextjs:
     build:
       context: .
-      dockerfile: Dockerfile
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/testdb?schema=public
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: always
+      dockerfile: Dockerfile  # Explicitly specify Dockerfile
+    container_name: nextjs-container
     ports:
       - "3000:3000"
-    entrypoint: ["/bin/sh", "-c", "npx prisma migrate deploy && npm start"]
-
-  postgres:
-    image: postgres:15
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=testdb
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/testdb?schema=public
+    depends_on:
+      - postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"  # Expose PostgreSQL on a different port externally
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: always
+      - .:/app
+      - /app/node_modules
+    networks:
+      - app-network
 
 volumes:
-  postgres_data:
+  postgres-data:
+
+networks:
+  app-network:
+    driver: bridge
