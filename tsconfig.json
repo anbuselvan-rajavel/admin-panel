@@ -39,7 +39,7 @@
     ".next/types/**/*.ts",
     "app/api/employees/route.tsx",
     "types/**/*.d.ts",
-    "next.config.cjs",
+    "next.config.js",
     "src/**/*",
     "app/**/*"
   ],
