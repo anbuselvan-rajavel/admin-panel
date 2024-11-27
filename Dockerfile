@@ -4,9 +4,6 @@ FROM node:18-alpine
 # Set working directory in the container
 WORKDIR /app
 
-# Install dependencies required for Prisma
-RUN apk add --no-cache openssl1.1-compat
-
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
