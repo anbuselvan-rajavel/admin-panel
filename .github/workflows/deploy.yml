@@ -19,11 +19,11 @@ jobs:
     
     - name: Deploy to VPS
       run: |
-        ssh -o StrictHostKeyChecking=no root@172.232.107.48 << EOF
+        ssh -o StrictHostKeyChecking=no root@172.232.107.48 << 'EOF'
           cd /opt/your-project
           git pull origin main
-          docker compose down
-          docker compose build
-          docker compose up -d
+          docker-compose down
+          docker-compose build
+          docker-compose up -d
           docker image prune -f
         EOF
