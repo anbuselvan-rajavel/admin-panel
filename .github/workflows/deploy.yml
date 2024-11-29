@@ -10,20 +10,20 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Updated to latest version
+      uses: actions/checkout@v3
     
     - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.9.0  # Updated to latest version
+      uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
     
     - name: Deploy to VPS
       run: |
-        ssh -o StrictHostKeyChecking=no root@172.232.107.48 << 'EOF'
+        ssh -o StrictHostKeyChecking=no root@your_server_ip << EOF
           cd /opt/your-project
           git pull origin main
-          docker-compose down
-          docker-compose build
-          docker-compose up -d
+          docker compose down
+          docker compose build
+          docker compose up -d
           docker image prune -f
         EOF
