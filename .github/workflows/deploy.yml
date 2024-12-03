@@ -2,28 +2,67 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main  # Trigger this workflow only for the 'main' branch
 
 jobs:
   deploy:
+    name: Deploy to Linode VPS
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-    
-    - name: Deploy to VPS
-      run: |
-        ssh -o StrictHostKeyChecking=no root@your_server_ip << EOF
-          cd /opt/your-project
+      # Step 1: Check out the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up SSH for secure connection
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Step 3: Deploy to VPS
+      - name: Deploy to VPS
+        env:
+          NVM_DIR: /root/.nvm
+        run: |
+          ssh -o StrictHostKeyChecking=no root@172.232.107.48 << 'EOF'
+          
+          # Navigate to the project directory or clone if not exists
+          if [ ! -d "/opt/majesticbridal/.git" ]; then
+              mkdir -p /opt/majesticbridal
+              git clone https://github.com/anbuselvan-rajavel/admin-panel.git /opt/majesticbridal
+          fi
+          cd /opt/majesticbridal
+
+          # Pull the latest changes
           git pull origin main
-          docker compose down
-          docker compose build
-          docker compose up -d
-          docker image prune -f
-        EOF
+
+          # Load NVM and set up Node.js
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+          nvm install 18
+          nvm use 18
+
+          # Install dependencies and build the project
+          npm install
+          npm run build
+
+          # Restart the application with PM2
+          pm2 delete majesticbridal || true
+          pm2 start npm --name "majesticbridal" -- start
+          pm2 save
+
+          # Use Docker for backend services
+          docker-compose down
+          docker-compose build
+          docker-compose up -d
+
+          # Optional: Run Prisma migrations
+          docker-compose exec app npx prisma migrate deploy
+
+          # Restart Nginx
+          systemctl restart nginx
+
+          EOF
