@@ -4,7 +4,7 @@ services:
       context: ./admin-panel  # Change context to admin-panel directory
       dockerfile: Dockerfile   # Specify Dockerfile location
     environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/testdb?schema=public
+      - DATABASE_URL=postgresql://postgres:password@localhost:5432/testdb?schema=public
     depends_on:
       postgres:
         condition: service_healthy
