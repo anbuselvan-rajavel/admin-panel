@@ -1,11 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
 async function main() {
   try {
-    // Create some employees
-    const employees = await prisma.employee.createMany({
+    await prisma.employee.createMany({
       data: [
         {
           name: "Amit Sharma",
@@ -13,7 +12,7 @@ async function main() {
           role: "Software Engineer",
           company: "TCS",
           joinDate: new Date("2022-03-15T00:00:00.000Z"),
-          salary: 80000
+          salary: 80000,
         },
         {
           name: "Priya Reddy",
@@ -89,16 +88,9 @@ async function main() {
         }
       ]
     });
-
-    console.log(`${employees.count} employees seeded`);
-
-    // Optional: Fetch and log the newly created employees (to confirm insertion)
-    const allEmployees = await prisma.employee.findMany();
-    console.log('All Employees:', allEmployees);
-
+    console.log("Data seeded successfully");
   } catch (error) {
     console.error('Error seeding data:', error);
-    process.exit(1);
   } finally {
     await prisma.$disconnect();
   }
