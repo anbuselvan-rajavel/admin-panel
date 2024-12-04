@@ -35,15 +35,17 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules ./node_modules
+# Create /app directory and set ownership
+RUN mkdir -p /app && chown -R nextjs:nodejs /app
 
-# Set permissions and switch to non-root user
-RUN chown -R nextjs:nodejs /app
+# Copy necessary files with appropriate ownership
+COPY --chown=nextjs:nodejs --from=builder /app/public ./public
+COPY --chown=nextjs:nodejs --from=builder /app/package.json ./package.json
+COPY --chown=nextjs:nodejs --from=builder /app/.next/standalone ./
+COPY --chown=nextjs:nodejs --from=builder /app/.next/static ./.next/static
+COPY --chown=nextjs:nodejs --from=builder /app/node_modules ./node_modules
+
+# Switch to non-root user
 USER nextjs
 
 # Expose the application port
