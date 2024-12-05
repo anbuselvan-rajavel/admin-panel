@@ -6,4 +6,4 @@ Dockerfile
 .gitignore
 README.md
 .next
-.env*.local
+.env
