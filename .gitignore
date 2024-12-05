@@ -2,8 +2,10 @@ node_modules
 npm-debug.log
 Dockerfile
 .dockerignore
+docker-compose.yml
 .git
 .gitignore
 README.md
 .next
-.env*.local
+.env.local
+.env.production
