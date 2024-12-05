@@ -29,7 +29,7 @@ interface Employee {
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 15, 20];
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://majesticbridal.in/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 interface FilterState {
   name: string;
