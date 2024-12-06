@@ -1,0 +1,8 @@
+# docker-compose.override.yml (Local Development Configuration)
+version: '3.8'
+
+services:
+  nextjs:
+    env_file:
+      - .env.local  # Load local environment variables
+    command: npm run dev  # Use the dev command for local development (hot reloading)
