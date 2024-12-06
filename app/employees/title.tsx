@@ -95,7 +95,7 @@ const Title: React.FC<TitleProps> = ({
 
   const handleCreateEmployee = async (data: EmployeeFormData) => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/employees`, data);
+      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}`, data);
       onRefreshEmployees();
     } catch (error) {
       console.error('Error creating employee:', error);
