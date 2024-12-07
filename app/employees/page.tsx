@@ -29,7 +29,7 @@ interface Employee {
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 15, 20];
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || `${process.env.NEXT_PUBLIC_SITE_URL}/api/employees`;
 
 interface FilterState {
   name: string;
