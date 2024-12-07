@@ -1,5 +1,5 @@
 // title.tsx for employees
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import TitleBarActions from '../components/TitleBarActions';
 import FilterSidebar from '../components/FilterSidebar';
 import { useForm } from 'react-hook-form';
@@ -9,6 +9,7 @@ import EmployeeFilterForm from '../components/(forms)/EmployeeFilterForm';
 import axios from 'axios';
 import { EmployeeFormData } from '../schema/employeeSchema';
 import UnifiedEmployeeForm from '../components/(forms)/UnifiedEmployeeForm';
+import { Toast } from 'primereact/toast';
 
 interface EmployeeFilterOptions {
   role: string[];
@@ -47,6 +48,12 @@ const Title: React.FC<TitleProps> = ({
   onRefreshEmployees,
 }) => {
   const [visibleRight, setVisibleRight] = useState(false);
+
+    // Add this line to create the toast ref
+    const toast = useRef<Toast>(null);
+
+  // Determine the base URL, with a fallback
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || `${process.env.NEXT_PUBLIC_SITE_URL}/api/employees`;
 
   const employeeFilterOptions: EmployeeFilterOptions = useMemo(
     () => ({
@@ -96,15 +103,44 @@ const Title: React.FC<TitleProps> = ({
 
   const handleCreateEmployee = async (data: EmployeeFormData) => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}`, data);
-      onRefreshEmployees();
+     // Use the determined base URL for creating an employee
+     await axios.post(BASE_URL, data);
+      
+     // Refresh employees and show success toast
+     onRefreshEmployees();
+     
+     // Success notification
+     toast.current?.show({
+       severity: 'success',
+       summary: 'Employee Created',
+       detail: 'New employee added successfully',
+       life: 3000
+     });
     } catch (error) {
       console.error('Error creating employee:', error);
+      // Error notification with detailed message
+      let errorMessage = 'Failed to create employee';
+      if (axios.isAxiosError(error)) {
+        // If it's an Axios error, we can get more specific error details
+        errorMessage = error.response?.data?.message || 
+                       error.response?.data?.error || 
+                       'Failed to create employee';
+      }
+      
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: errorMessage,
+        life: 5000
+      });
     }
   };
 
+
   return (
     <div className="bg-zinc-100">
+       {/* Add Toast component at the top of your return */}
+       <Toast ref={toast} />
       <div className="grid grid-cols-5 mb-4">
         <div className="col-span-3">
           <h1 className="text-4xl font-extrabold">Employees</h1>
