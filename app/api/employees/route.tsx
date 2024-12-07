@@ -34,7 +34,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const page = Number(url.searchParams.get('page')) || 1; // Default to page 1
   const limit = Number(url.searchParams.get('limit')) || 10; // Default to 10 items per page
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${url.protocol}//${url.host}${url.pathname}`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   const skip = (page - 1) * limit; // calculate the number of records to skip
 
