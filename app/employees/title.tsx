@@ -53,7 +53,7 @@ const Title: React.FC<TitleProps> = ({
     const toast = useRef<Toast>(null);
 
   // Determine the base URL, with a fallback
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || `${process.env.NEXT_PUBLIC_SITE_URL}/api/employees`;
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
   const employeeFilterOptions: EmployeeFilterOptions = useMemo(
     () => ({
@@ -104,7 +104,7 @@ const Title: React.FC<TitleProps> = ({
   const handleCreateEmployee = async (data: EmployeeFormData) => {
     try {
      // Use the determined base URL for creating an employee
-     await axios.post(BASE_URL, data);
+     await axios.post(`${BASE_URL}/api/employees`, data);
       
      // Refresh employees and show success toast
      onRefreshEmployees();
