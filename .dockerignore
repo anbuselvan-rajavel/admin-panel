@@ -5,8 +5,12 @@ npm-debug.log
 .gitignore
 README.md
 .dockerignore
+prisma/.generated/
+prisma/migrations/
 Dockerfile
 docker-compose.yml
-docker-compose.override.yml
+.env
 .env.local
 .env.production
+.env*
+*.md
