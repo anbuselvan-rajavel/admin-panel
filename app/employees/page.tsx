@@ -29,7 +29,7 @@ interface Employee {
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 15, 20];
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || `${process.env.NEXT_PUBLIC_SITE_URL}/api/employees`;
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 interface FilterState {
   name: string;
@@ -95,7 +95,7 @@ const Employees = () => {
       const uniqueRoles = new Set<string>(['All']);
 
       // First, fetch the first page to get total number of records
-      const initialResponse = await axios.get(`${API_BASE_URL}?page=1&limit=${pagination.limit}`);
+      const initialResponse = await axios.get(`${API_BASE_URL}/api/employees?page=1&limit=${pagination.limit}`);
       const totalRecords = initialResponse.data.meta.totalEmployees;
       const totalPages = Math.ceil(totalRecords / pagination.limit);
 
@@ -108,7 +108,7 @@ const Employees = () => {
       // Fetch remaining pages
       const remainingPages = Array.from(
         { length: totalPages - 1 },
-        (_, i) => axios.get(`${API_BASE_URL}?page=${i + 2}&limit=${pagination.limit}`)
+        (_, i) => axios.get(`${API_BASE_URL}/api/employees?page=${i + 2}&limit=${pagination.limit}`)
       );
 
       const responses = await Promise.all(remainingPages);
@@ -155,7 +155,7 @@ const Employees = () => {
         ...(filters.company && filters.company !== 'All' && { company: filters.company })
       });
 
-      const response = await axios.get(`${API_BASE_URL}?${queryParams}`);
+      const response = await axios.get(`${API_BASE_URL}/api/employees?${queryParams}`);
       setEmployees(response.data.data);
       setPagination(prev => ({ ...prev, totalRecords: response.data.meta.totalEmployees }));
     } catch (err) {
@@ -192,7 +192,7 @@ const Employees = () => {
       }
 
       // Make the API call to update the employee
-      await axios.put(`${API_BASE_URL}/${formData.id}`, formData);
+      await axios.put(`${API_BASE_URL}/api/employees/${formData.id}`, formData);
 
       // Refresh the employee list and roles/companies
       setRefreshTrigger(prev => prev + 1);
@@ -227,7 +227,7 @@ const Employees = () => {
       rejectClassName: 'm-2 w-10 border-2 border-gray-200',
       accept: async () => {
         try {
-          await axios.delete(`${API_BASE_URL}/${employeeId}`);
+          await axios.delete(`${API_BASE_URL}api/employees/${employeeId}`);
           await fetchEmployees();
           await fetchCompaniesAndRoles();
           toast.current?.show({
