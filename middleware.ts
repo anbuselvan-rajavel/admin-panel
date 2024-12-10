@@ -1,7 +1,6 @@
-// middleware 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(req: Request) {
+export function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   // Add CORS headers to allow requests from your frontend domain
@@ -11,8 +10,20 @@ export function middleware(req: Request) {
 
   // If it's a preflight request (OPTIONS method), respond with 204 status
   if (req.method === 'OPTIONS') {
-    return NextResponse.json(null, { status: 204 });
+    return new NextResponse(null, { 
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://majesticbridal.in',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      }
+    });
   }
 
   return res;
+}
+
+// Add a config to specify which routes this middleware applies to
+export const config = {
+  matcher: '/api/:path*'
 }

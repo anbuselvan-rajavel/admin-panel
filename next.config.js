@@ -14,15 +14,6 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
-  // Adding middleware configuration
-  async middleware() {
-    return [
-      {
-        source: '/api/:path*', // Apply to all API routes
-        function: 'middleware', // Link the middleware function
-      },
-    ];
-  },
 };
 
 module.exports = nextConfig;
