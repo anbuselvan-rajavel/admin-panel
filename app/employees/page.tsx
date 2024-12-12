@@ -29,7 +29,6 @@ interface Employee {
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 15, 20];
-// const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 interface FilterState {
   name: string;
@@ -171,9 +170,10 @@ const Employees = () => {
     fetchCompaniesAndRoles();
   }, [fetchCompaniesAndRoles]);
 
+  // Fetch employees only when necessary (pagination, filters change)
   useEffect(() => {
     fetchEmployees();
-  }, [fetchEmployees, refreshTrigger]);
+  }, [fetchEmployees, filters, pagination.limit]);
 
   // Event handlers
   const handlePageChange = (event: PaginatorPageChangeEvent) => {
@@ -228,16 +228,14 @@ const Employees = () => {
       accept: async () => {
         try {
           await axios.delete(`/api/employees/${employeeId}`);
-          await fetchEmployees();
-          await fetchCompaniesAndRoles();
           toast.current?.show({
             severity: 'success',
             summary: 'Success',
             detail: 'Employee deleted successfully',
             life: 3000
           });
+          setRefreshTrigger(prev => prev + 1);
         } catch (error) {
-          setError('Error deleting employee');
           console.error(error);
           toast.current?.show({
             severity: 'error',
@@ -246,9 +244,18 @@ const Employees = () => {
             life: 3000
           });
         }
+      },
+      reject: () => {
+        toast.current?.show({
+          severity: 'info',
+          summary: 'Action Cancelled',
+          detail: 'Employee deletion canceled',
+          life: 3000
+        });
       }
     });
-  }, [fetchEmployees, fetchCompaniesAndRoles]);
+  }, []);
+
 
   const handleEdit = useCallback((employee: Employee) => {
     try {
