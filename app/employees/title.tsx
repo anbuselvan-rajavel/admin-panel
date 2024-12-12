@@ -52,10 +52,7 @@ const Title: React.FC<TitleProps> = ({
     // Add this line to create the toast ref
     const toast = useRef<Toast>(null);
 
-  // Determine the base URL, with a fallback
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-  const employeeFilterOptions: EmployeeFilterOptions = useMemo(
+ const employeeFilterOptions: EmployeeFilterOptions = useMemo(
     () => ({
       role: roles,
       company: companies,
