@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { DataTable } from "primereact/datatable";
@@ -7,8 +7,6 @@ import { Paginator } from "primereact/paginator";
 import { Skeleton } from "primereact/skeleton";
 import { Tag } from "primereact/tag";
 import UserTitle from "./Title";
-
-
 
 interface User {
   id: number;
@@ -22,13 +20,12 @@ interface User {
 
 interface PageChangeEvent {
    page: number; 
-  }
+}
 
 const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [totalRecords, setTotalRecords] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
@@ -38,7 +35,6 @@ const Users = () => {
   const statuses = ["All", "Alive", "Dead", "unknown"];
   const genders = ["All", "Male", "Female", "unknown"];
 
-  // Calculate active filter count
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (selectedStatus && selectedStatus !== "All") count++;
@@ -47,56 +43,58 @@ const Users = () => {
     return count;
   }, [selectedStatus, selectedGender, nameFilter]);
 
-  // Function to fetch users with status, name, and gender filter
   const fetchUsers = async (page: number, status?: string, name?: string, gender?: string) => {
     setLoading(true);
     try {
       let url = `https://rickandmortyapi.com/api/character/?page=${page}`;
 
-      // Create an array of filters
-      const filters: { [key: string]: string | undefined } = {
-        status: status && status !== "All" ? status.toLowerCase() : undefined,
-        name: name || undefined,
-        gender: gender && gender !== "All" ? gender.toLowerCase() : undefined,
-      };
+      const filters: Array<string> = [];
+      if (status && status !== "All") filters.push(`status=${status.toLowerCase()}`);
+      if (name && name.trim() !== "") filters.push(`name=${encodeURIComponent(name)}`);
+      if (gender && gender !== "All") filters.push(`gender=${gender.toLowerCase()}`);
 
-      // Add filters to URL using for...of loop
-      for (const [key, value] of Object.entries(filters)) {
-        if (value) {
-          url += `&${key}=${value}`;
-        }
+      if (filters.length > 0) {
+        url += `&${filters.join('&')}`;
       }
 
       const response = await axios.get(url);
-      setUsers(response.data.results);
-      setFilteredUsers(response.data.results);
-      setTotalRecords(response.data.info.count);
-    } catch (err) {
-      setError("Error fetching data");
-      console.log(err);
+      
+      if (response.data.results.length === 0) {
+        setUsers([]);
+        setFilteredUsers([]);
+        setTotalRecords(0);
+      } else {
+        setUsers(response.data.results);
+        setFilteredUsers(response.data.results);
+        setTotalRecords(response.data.info.count);
+      }
+    } catch (err: any) {
+      setUsers([]);
+      setFilteredUsers([]);
+      setTotalRecords(0);
+      console.error(err); // Just log errors instead of showing a toast
     } finally {
       setLoading(false);
     }
   };
 
-
-  // Severity configuration for status
-  const severityConfig: { [key: string]: "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined } = {
-    alive: "success", // Green for alive
-    dead: "danger", // Red for dead
-    unknown: "warning", // Yellow for unknown
-  };
-
-  const getSeverity = (status: string): "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined => {
-    return severityConfig[status.toLowerCase()] || "secondary"; // Default to 'secondary' if status is unrecognized
-  };
+    // Severity configuration for status
+    const severityConfig: { [key: string]: "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined } = {
+      alive: "success", // Green for alive
+      dead: "danger", // Red for dead
+      unknown: "warning", // Yellow for unknown
+    };
+  
+    const getSeverity = (status: string): "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined => {
+      return severityConfig[status.toLowerCase()] || "secondary"; // Default to 'secondary' if status is unrecognized
+    };
 
   useEffect(() => {
     fetchUsers(currentPage, selectedStatus, nameFilter, selectedGender);
   }, [currentPage, selectedStatus, nameFilter, selectedGender]);
 
   const onPageChange = (event: PageChangeEvent) => {
-    setCurrentPage(event.page + 1); // Set current page for pagination
+    setCurrentPage(event.page + 1);
   };
 
   const handleFilter = (filterText: string) => {
@@ -152,9 +150,8 @@ const Users = () => {
         onStatusFilter={(status) => setSelectedStatus(status)}
         onGenderFilter={(gender) => setSelectedGender(gender)}
         onResetFilters={handleResetFilters}
-        activeFilterCount={activeFilterCount} // Pass active filter count directly
+        activeFilterCount={activeFilterCount}
       />
-      {error && <p className="text-red-500 mb-4">{error}</p>}
       {loading ? (
         renderSkeleton()
       ) : (
