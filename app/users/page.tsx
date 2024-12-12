@@ -68,26 +68,30 @@ const Users = () => {
         setFilteredUsers(response.data.results);
         setTotalRecords(response.data.info.count);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setUsers([]);
       setFilteredUsers([]);
       setTotalRecords(0);
-      console.error(err); // Just log errors instead of showing a toast
+      if (err instanceof Error) {
+        console.error(err.message); // Access message property only if it's an instance of Error
+      } else {
+        console.error("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-    // Severity configuration for status
-    const severityConfig: { [key: string]: "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined } = {
-      alive: "success", // Green for alive
-      dead: "danger", // Red for dead
-      unknown: "warning", // Yellow for unknown
-    };
-  
-    const getSeverity = (status: string): "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined => {
-      return severityConfig[status.toLowerCase()] || "secondary"; // Default to 'secondary' if status is unrecognized
-    };
+  // Severity configuration for status
+  const severityConfig: { [key: string]: "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined } = {
+    alive: "success", // Green for alive
+    dead: "danger", // Red for dead
+    unknown: "warning", // Yellow for unknown
+  };
+
+  const getSeverity = (status: string): "info" | "danger" | "success" | "warning" | "secondary" | "contrast" | undefined => {
+    return severityConfig[status.toLowerCase()] || "secondary"; // Default to 'secondary' if status is unrecognized
+  };
 
   useEffect(() => {
     fetchUsers(currentPage, selectedStatus, nameFilter, selectedGender);
