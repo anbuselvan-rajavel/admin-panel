@@ -63,6 +63,10 @@ const formatSalary = (value: number) => {
 };
 
 const Employees = () => {
+  // Refs
+  const isMounted = useRef(false);
+  const toast = useRef<Toast | null>(null);
+
   // State
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [companies, setCompanies] = useState<string[]>(['All']);
@@ -82,54 +86,68 @@ const Employees = () => {
     totalRecords: 0
   });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [mode, setMode] = useState<'edit' | 'create'>('create');  // Track the mode
+  const [mode, setMode] = useState<'edit' | 'create'>('create');
   const { reset } = useForm();
 
-  const toast = useRef<Toast | null>(null);
+  // Memoized Fetch Initial Data
+  const fetchInitialData = useCallback(async () => {
+    if (typeof window === 'undefined' || isMounted.current) return;
 
-  // Fetch unique companies and roles
-  const fetchCompaniesAndRoles = useCallback(async () => {
+    setLoading(true);
     try {
-      const uniqueCompanies = new Set<string>(['All']);
-      const uniqueRoles = new Set<string>(['All']);
-
-      // First, fetch the first page to get total number of records
-      const initialResponse = await axios.get(`/api/employees?page=1&limit=${pagination.limit}`);
-      const totalRecords = initialResponse.data.meta.totalEmployees;
-      const totalPages = Math.ceil(totalRecords / pagination.limit);
-
-      // Process the first page
-      initialResponse.data.data.forEach((employee: Employee) => {
+      const response = await axios.get(`/api/employees?page=1&limit=${pagination.limit}`);
+      const employees = response.data.data;
+      setEmployees(employees);
+      
+      // Extract unique companies and roles
+      const uniqueCompanies = new Set(['All']);
+      const uniqueRoles = new Set(['All']);
+      
+      employees.forEach((employee: Employee) => {
         if (employee.company) uniqueCompanies.add(employee.company);
         if (employee.role) uniqueRoles.add(employee.role);
       });
+      
+      // Populate total pages and extract other unique companies/roles
+      const totalRecords = response.data.meta.totalEmployees;
+      const totalPages = Math.ceil(totalRecords / pagination.limit);
 
-      // Fetch remaining pages
-      const remainingPages = Array.from(
-        { length: totalPages - 1 },
-        (_, i) => axios.get(`/api/employees?page=${i + 2}&limit=${pagination.limit}`)
-      );
+      // Fetch remaining pages to get all unique companies and roles
+      if (totalPages > 1) {
+        const remainingPagesPromises = Array.from(
+          { length: totalPages - 1 },
+          (_, i) => axios.get(`/api/employees?page=${i + 2}&limit=${pagination.limit}`)
+        );
 
-      const responses = await Promise.all(remainingPages);
-
-      // Process remaining pages
-      responses.forEach(response => {
-        response.data.data.forEach((employee: Employee) => {
-          if (employee.company) uniqueCompanies.add(employee.company);
-          if (employee.role) uniqueRoles.add(employee.role);
+        const remainingResponses = await Promise.all(remainingPagesPromises);
+        
+        remainingResponses.forEach(pageResponse => {
+          pageResponse.data.data.forEach((employee: Employee) => {
+            if (employee.company) uniqueCompanies.add(employee.company);
+            if (employee.role) uniqueRoles.add(employee.role);
+          });
         });
-      });
-
+      }
+      
       setCompanies(Array.from(uniqueCompanies));
       setRoles(Array.from(uniqueRoles));
+      
+      setPagination(prev => ({ 
+        ...prev, 
+        totalRecords: totalRecords 
+      }));
+
+      isMounted.current = true;
     } catch (error) {
-      console.error('Error fetching companies and roles:', error);
+      console.error('Error fetching initial data:', error);
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to fetch companies and roles',
+        detail: 'Failed to fetch initial data',
         life: 3000
       });
+    } finally {
+      setLoading(false);
     }
   }, [pagination.limit]);
 
@@ -142,8 +160,10 @@ const Employees = () => {
     return count;
   }, [filters]);
 
-  // API calls
+  // Fetch Employees with Filters
   const fetchEmployees = useCallback(async () => {
+    if (typeof window === 'undefined') return;
+
     setLoading(true);
     try {
       const queryParams = new URLSearchParams({
@@ -160,22 +180,30 @@ const Employees = () => {
     } catch (err) {
       setError("Error fetching data");
       console.error(err);
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to fetch employees',
+        life: 3000
+      });
     } finally {
       setLoading(false);
     }
   }, [pagination.currentPage, pagination.limit, filters]);
 
-  // Initial fetch of companies and roles
+  // Initial data fetch effect
   useEffect(() => {
-    fetchCompaniesAndRoles();
-  }, [fetchCompaniesAndRoles]);
+    fetchInitialData();
+  }, [fetchInitialData]);
 
-  // Fetch employees only when necessary (pagination, filters change)
+  // Fetch employees on filter or refresh trigger change
   useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees, filters, pagination.limit]);
+    if (isMounted.current) {
+      fetchEmployees();
+    }
+  }, [fetchEmployees, refreshTrigger]);
 
-  // Event handlers
+  // Event handlers (rest of the code remains the same as in the previous implementation)
   const handlePageChange = (event: PaginatorPageChangeEvent) => {
     setPagination(prev => ({
       ...prev,
@@ -186,20 +214,15 @@ const Employees = () => {
 
   const handleUpdateEmployee = async (formData: EmployeeFormData) => {
     try {
-      // Check if joinDate is valid
       if (isNaN(new Date(formData.joinDate).getTime())) {
         throw new Error('Invalid date format');
       }
 
-      // Make the API call to update the employee
       await axios.put(`/api/employees/${formData.id}`, formData);
 
-      // Refresh the employee list and roles/companies
       setRefreshTrigger(prev => prev + 1);
-      await fetchCompaniesAndRoles();
       setEditDialogVisible(false);
 
-      // Show success message
       toast.current?.show({
         severity: 'success',
         summary: 'Success',
@@ -228,14 +251,15 @@ const Employees = () => {
       accept: async () => {
         try {
           await axios.delete(`/api/employees/${employeeId}`);
+          setRefreshTrigger(prev => prev + 1);
           toast.current?.show({
             severity: 'success',
             summary: 'Success',
             detail: 'Employee deleted successfully',
             life: 3000
           });
-          setRefreshTrigger(prev => prev + 1);
         } catch (error) {
+          setError('Error deleting employee');
           console.error(error);
           toast.current?.show({
             severity: 'error',
@@ -244,25 +268,15 @@ const Employees = () => {
             life: 3000
           });
         }
-      },
-      reject: () => {
-        toast.current?.show({
-          severity: 'info',
-          summary: 'Action Cancelled',
-          detail: 'Employee deletion canceled',
-          life: 3000
-        });
       }
     });
   }, []);
 
-
   const handleEdit = useCallback((employee: Employee) => {
     try {
-      // Ensure that joinDate is in the correct format for the calendar component
       const formattedEmployee: Employee = {
         ...employee,
-        joinDate: new Date(employee.joinDate).toISOString().split('T')[0]  // Format as 'yyyy-mm-dd'
+        joinDate: new Date(employee.joinDate).toISOString().split('T')[0]
       };
       setMode('edit');
       setSelectedEmployee(formattedEmployee);
@@ -277,7 +291,7 @@ const Employees = () => {
       });
     }
   }, []);
-  // Render methods
+
   const renderActionButtons = useCallback((rowData: Employee) => (
     <div className="flex justify-center gap-2">
       <button
@@ -295,16 +309,17 @@ const Employees = () => {
     </div>
   ), [handleEdit, handleDelete]);
 
-  if (error) {
-    return <p className="text-red-500 mb-4">{error}</p>;
-  }
   const handleCancel = () => {
     setEditDialogVisible(false);
     setSelectedEmployee(null);
     if (mode === 'create') {
-      reset();  // Reset form values when in create mode
+      reset();
     }
   };
+
+  if (error) {
+    return <p className="text-red-500 mb-4">{error}</p>;
+  }
 
   return (
     <>
@@ -317,7 +332,7 @@ const Employees = () => {
         initialData={selectedEmployee}
         isDialog={true}
         onHide={handleCancel}
-        onCancel={handleCancel}  // Ensure onCancel is implemented correctly
+        onCancel={handleCancel}
         roles={roles.filter(role => role !== 'All')}
         companies={companies.filter(company => company !== 'All')}
       />
