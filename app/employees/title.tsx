@@ -104,7 +104,7 @@ const Title: React.FC<TitleProps> = ({
   const handleCreateEmployee = async (data: EmployeeFormData) => {
     try {
      // Use the determined base URL for creating an employee
-     await axios.post(`${BASE_URL}/api/employees`, data);
+     await axios.post(`${BASE_URL}api/employees`, data);
       
      // Refresh employees and show success toast
      onRefreshEmployees();
