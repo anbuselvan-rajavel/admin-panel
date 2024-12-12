@@ -71,10 +71,11 @@ const UserTitle: React.FC<TitleProps> = ({
   const handleFormSubmit = (data: UserFilterFormValues) => {
     const statusFilter = data.status === 'All' ? undefined : data.status;
     const genderFilter = data.gender === 'All' ? undefined : data.gender;
-
+    const nameFilter = data.name ? data.name.trim() : '';
+  
     onStatusFilter(statusFilter);
     onGenderFilter(genderFilter);
-    onApplyFilters(data.name || '', statusFilter, genderFilter);
+    onApplyFilters(nameFilter, statusFilter, genderFilter);
     setVisibleRight(false);
   };
 
