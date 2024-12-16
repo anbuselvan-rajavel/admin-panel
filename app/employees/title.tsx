@@ -143,7 +143,7 @@ const handleCreateEmployee = async (data: EmployeeFormData) => {
             handleFilterChange={handleFilterChange}
             setVisibleRight={setVisibleRight}
             activeFilterCount={activeFilterCount}
-            searchPlaceholder="Search Employees.."
+            searchPlaceholder="Search Employees"
             roles={roles}
             companies={companies}
             FormComponent={UnifiedEmployeeForm}
