@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy to Linode
 
 on:
   push:
@@ -8,36 +8,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4  # Updated to latest version
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Deploy to VPS
-      uses: appleboy/ssh-action@master
+    - uses: actions/checkout@v3
+    
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.0
       with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USER }}
-        key: ${{ secrets.VPS_SSH_KEY }}
-        script: |
-          cd ~/app
-          
-          # Fetch the latest changes
-          git fetch origin main
-          git reset --hard origin/main
-          
-          # Pull the latest images
-          docker-compose pull
-          
-          # Stop existing containers
-          docker-compose down
-          
-          # Rebuild and start containers
-          docker-compose up -d --build
-          
-          # Run database migrations
-          docker-compose exec -T nextjs-app npx prisma migrate deploy
-          
-          # Prune old images and volumes
-          docker image prune -f
-          docker volume prune -f
+        ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+    
+    - name: Deploy to Linode
+      run: |
+        ssh -o StrictHostKeyChecking=no root@${{ secrets.VPS_IP }} <<EOF
+          cd /opt/app/admin-panel
+          git pull origin main
+          npm install
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run build
+          pm2 restart nextjs-app
+        EOF
