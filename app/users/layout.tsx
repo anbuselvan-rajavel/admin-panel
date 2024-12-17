@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 const Layout = ({ children }: LayoutProps) => {
     return (
         <div className='flex'>
-            <main className='flex-1 pr-20'>
+            <main className='flex-1'>
                 {children}
             </main>
         </div>

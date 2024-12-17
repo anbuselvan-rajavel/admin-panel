@@ -25,10 +25,10 @@ const Sidebar = () => {
     const activeMenu = getActiveMenu();  // Set active menu based on the current route
 
     return (
-        <div className={`bg-zinc-100 text-black transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'} min-h-screen`}>
+        <div className={`bg-zinc-100 text-black transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-52'} min-h-screen`}>
             <div className="p-4 flex justify-between items-center">
                 {!isCollapsed && <h2 className="text-2xl font-bold"><span className='text-violet-500'>Admin</span> Panel</h2>}
-                <button onClick={toggleSidebar} className="focus:outline-none">
+                <button onClick={toggleSidebar} className="focus:outline-none mt-1">
                     {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft />} 
                 </button>
             </div>
