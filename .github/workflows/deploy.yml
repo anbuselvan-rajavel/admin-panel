@@ -1,4 +1,4 @@
-name: Deploy to Linode
+name: Deploy to Linode (VPS)
 
 on:
   push:
