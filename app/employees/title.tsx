@@ -138,7 +138,7 @@ const handleCreateEmployee = async (data: EmployeeFormData) => {
         <div className="col-span-3">
           <h1 className="text-4xl font-extrabold">Employees</h1>
         </div>
-        <div className="col-span-2">
+        <div className="col-span-2 flex justify-evenly">
           <TitleBarActions
             handleFilterChange={handleFilterChange}
             setVisibleRight={setVisibleRight}
