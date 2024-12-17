@@ -45,17 +45,30 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Source profile to get NVM or other environment settings
             source ~/.profile
             source ~/.bashrc
             
-            # Export NVM directory if you're using NVM
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
             cd ${{ secrets.DEPLOY_PATH }}
-            npm ci
+            
+            # Check if package.json has changed
+            if [ -f package.json.old ]; then
+              if ! cmp -s package.json package.json.old; then
+                echo "Dependencies changed, installing..."
+                npm ci
+                cp package.json package.json.old
+              else
+                echo "No changes in package.json, skipping installation"
+              fi
+            else
+              echo "First deployment, installing dependencies..."
+              npm ci
+              cp package.json package.json.old
+            fi
+            
             npx prisma generate
             npx prisma migrate deploy
             npm run build
-            pm2 restart next-app || pm2 start "npm run start" --name "next-app"
+            pm2 restart nextjs-app || pm2 start "npm run start" --name "nextjs-app"
