@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "prisma": {
-    "schema": "./prisma/schema.prisma",
-    "seed": "ts-node prisma/seed.ts"
-  },
+    "schema": "./prisma/schema.prisma"
+     },
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -17,7 +17,7 @@
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up",
     "docker:down": "docker-compose down",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "node seed.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

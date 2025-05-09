@@ -1,4 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
+// Using ES module imports instead of require
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
