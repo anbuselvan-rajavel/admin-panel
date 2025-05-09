@@ -4,7 +4,7 @@ export function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   // Add CORS headers to allow requests from your frontend domain
-  res.headers.set('Access-Control-Allow-Origin', 'https://majesticbridal.in');
+  res.headers.set('Access-Control-Allow-Origin', 'https://admin-panel-six-jet.vercel.app');
   res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -13,7 +13,7 @@ export function middleware(req: NextRequest) {
     return new NextResponse(null, { 
       status: 204,
       headers: {
-        'Access-Control-Allow-Origin': 'https://majesticbridal.in',
+        'Access-Control-Allow-Origin': 'https://admin-panel-six-jet.vercel.app',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       }
