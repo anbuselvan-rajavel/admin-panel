@@ -4,32 +4,6 @@ import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-/**
- * @swagger
- * /api/employees:
- *   get:
- *     summary: List employees with pagination and filtering
- *     tags: [Employees]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *     responses:
- *       200:
- *         description: List of employees
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Employee'
- */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const page = Number(url.searchParams.get('page')) || 1; // Default to page 1
@@ -116,55 +90,6 @@ export async function GET(req: Request) {
   }
 }
 
-/**
- * @swagger
- * /api/employees:
- *   post:
- *     summary: Create a new employee
- *     tags: [Employees]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - email
- *               - role
- *             properties:
- *               name:
- *                 type: string
- *                 example: "John Doe"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "john.doe@example.com"
- *               role:
- *                 type: string
- *                 example: "Software Engineer"
- *               company:
- *                 type: string
- *                 example: "Tech Corp"
- *               joinDate:
- *                 type: string
- *                 format: date
- *                 example: "2024-01-15"
- *               salary:
- *                 type: number
- *                 example: 75000
- *     responses:
- *       201:
- *         description: Employee created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Employee'
- *       400:
- *         description: Invalid input
- *       500:
- *         description: Internal server error
- */
 export async function POST(request: Request) {
   try {
     const { name, email, role, company, joinDate, salary } = await request.json();
